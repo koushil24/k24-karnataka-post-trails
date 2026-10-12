@@ -1,1 +1,34 @@
-
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-labelledby="k24t">
+  <title id="k24t">K_24 Karnataka Post Trails emblem</title>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <!-- postal cancellation rings -->
+    <circle cx="100" cy="100" r="92" stroke="#103D2F" stroke-width="5"/>
+    <circle cx="100" cy="100" r="82" stroke="#D5AC49" stroke-width="1.6" stroke-dasharray="2 5"/>
+    <!-- heritage gopura (stepped temple tower) -->
+    <g fill="#103D2F" stroke="none">
+      <circle cx="100" cy="27" r="2.4"/>
+      <rect x="92" y="31" width="16" height="6" rx="1"/>
+      <rect x="88" y="38" width="24" height="6" rx="1"/>
+      <rect x="84" y="45" width="32" height="6" rx="1"/>
+      <rect x="80" y="52" width="40" height="6" rx="1"/>
+      <rect x="76" y="59" width="48" height="6" rx="1"/>
+    </g>
+    <!-- K 2 4 monogram drawn as editable strokes -->
+    <g stroke="#103D2F" stroke-width="8">
+      <path d="M62 82V138M62 111L92 82M71 107L95 138"/>
+      <path d="M110 94C110 79 134 79 134 95C134 109 113 121 110 138H138" stroke-width="7"/>
+      <path d="M157 82V138M157 82L140 121H169" stroke-width="7"/>
+    </g>
+    <!-- gold underscore + travel route + compass star -->
+    <path d="M58 151H98" stroke="#D5AC49" stroke-width="4.5"/>
+    <path d="M52 163C78 150 120 174 148 160" stroke="#C83742" stroke-width="2.4" stroke-dasharray="0.5 6"/>
+    <path d="M100 169L102.2 174.4L108 176.5L102.2 178.6L100 184L97.8 178.6L92 176.5L97.8 174.4Z" fill="#D5AC49" stroke="none"/>
+  </g>
+  <!-- postage-stamp corner -->
+  <g>
+    <rect x="137" y="33" width="38" height="43" rx="2" fill="#C83742"/>
+    <rect x="137" y="33" width="38" height="43" rx="2" fill="none" stroke="#F7F1E3" stroke-width="3" stroke-dasharray="2.5 3.5"/>
+    <path d="M144 58c4-5 8-5 12 0s8 5 12 0M144 64c4-5 8-5 12 0s8 5 12 0" fill="none" stroke="#F7F1E3" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="156" cy="46" r="4" fill="#F7F1E3"/>
+  </g>
+</svg>
