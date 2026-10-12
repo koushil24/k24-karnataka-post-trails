@@ -30,7 +30,7 @@ Opening `index.html` directly (file://) also works.
 | `js/anim.js` | GSAP/ScrollTrigger hero + parallax, IntersectionObserver reveals, counters |
 | `js/views.js`, `js/views2.js` | Pages: home, passport, explore, destination, blogs, collection, expenses, planner, about, contact, privacy, 404 |
 | `js/app.js` | Hash router, theme, drawer, search, boot |
-| `assets/logo.svg` | Original vector logo (editable paths). `logo.png` transparent export, `og-image.png` share image |
+| `assets/logo-full.png` | Your original logo, untouched. `logo-emblem.png` (round crop for nav/loader/favicons), `logo-full-640.png` (web size), `og-image.png` |
 | `404.html` | GitHub Pages fallback → redirects to the app |
 | `tools/generate-share-pages.js` | Optional static share pages + sitemap |
 
