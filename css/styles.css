@@ -288,3 +288,45 @@ dialog[open]{animation:dlgIn .22s ease}@keyframes dlgIn{from{opacity:0;transform
 
 /* dashboard inside the Passport page sits in normal flow (the overlap is only for the home hero) */
 #p-dash .dash{margin-top:0;grid-template-columns:1fr}
+
+/* ---------- v3: directory, verification, explore split, planner ---------- */
+.chip-pending{color:#4b5563;background:#eceff1;border-color:#c5ccd3}[data-theme=dark] .chip-pending{color:#c9d2cb;background:#1f2e27;border-color:#3b4b42}
+.serial{display:inline-block;font:700 .8em var(--sans);color:var(--muted);margin-right:.25rem}
+.prog{margin:1rem 0}.prog-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:.5rem}.prog-top h2{margin:0}.big-num{font:700 1.5rem var(--serif)}.big-num small{font:500 1rem var(--sans);color:var(--muted)}
+.seg{display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line);margin:.6rem 0}.seg i{display:block;height:100%;transition:width 1s ease}
+.s-v{background:#1f7a55}.s-p{background:#C9A24B}.s-n{background:var(--surface-2)}
+.seg-key{display:flex;flex-wrap:wrap;gap:.3rem 1.2rem;list-style:none;padding:0;margin:.2rem 0 .6rem;font-size:.88rem}.seg-key li{display:flex;align-items:center;gap:.4rem}.seg-key i{width:12px;height:12px;border-radius:50%;display:inline-block;border:1px solid var(--line)}
+.origin select{min-height:44px}
+.xplore{display:grid;grid-template-columns:minmax(300px,.9fr) 1.1fr;gap:1.2rem;align-items:start}
+.xl{max-height:78vh;overflow:auto;padding-right:.3rem}.xl-tools{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.6rem;position:sticky;top:0;background:var(--bg);padding:.3rem 0;z-index:2}
+.xm{position:sticky;top:calc(var(--nav) + 12px)}.xm .big-map{height:clamp(360px,64vh,640px)}
+.map-search{display:flex;gap:.4rem;margin-bottom:.6rem}.map-search input{flex:1;min-width:0}
+.dist{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);margin-bottom:.6rem;box-shadow:var(--shadow);overflow:hidden}
+.dist-head{display:grid;grid-template-columns:auto 1fr 70px auto;gap:.8rem;align-items:center;width:100%;text-align:left;background:none;border:0;color:inherit;padding:.8rem 1rem;cursor:pointer;min-height:56px;font:inherit}
+.dist-head:hover{background:rgba(127,127,127,.08)}.dn{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--green);color:var(--cream);font:700 .85rem var(--sans)}[data-theme=dark] .dn{background:var(--gold);color:#0b2c21}
+.dt{display:grid;line-height:1.25}.dt small{color:var(--muted);font-size:.8rem}.dp{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden;border:1px solid var(--line)}.dp i{display:block;height:100%;background:#1f7a55}
+.dc{transition:transform .2s}.dist.open .dc{transform:rotate(180deg)}
+.dist-body{border-top:1px dashed var(--line)}.dist-body ul{list-style:none;margin:0;padding:0}.dist-note{padding:.6rem 1rem 0;margin:0}
+.xi{display:grid;grid-template-columns:34px 1fr auto;gap:.7rem;padding:.7rem 1rem;border-bottom:1px dashed var(--line);align-items:center;transition:background .4s}.xi:last-child{border-bottom:0}
+.xs{font:700 .85rem var(--serif);display:grid;place-items:center;width:34px;height:34px;border:2px dotted var(--gold);border-radius:6px}.xb{display:grid;gap:.15rem;min-width:0}.xb small{overflow-wrap:anywhere}
+.xi.hl{background:rgba(213,172,73,.28);outline:2px solid var(--gold)}
+.pane-toggle{display:none}
+@media (max-width:900px){.xplore{grid-template-columns:1fr}.pane-toggle{display:flex}.xplore[data-pane=list] .xm{display:none}.xplore[data-pane=map] .xl{display:none}.xm{position:static}.xl{max-height:none}.dist-head{grid-template-columns:auto 1fr auto}.dp{display:none}.xi{grid-template-columns:34px 1fr}.xa{grid-column:2}}
+.k24-pin.est{border-style:dashed}.k24-pin.hl{animation:pinhl 1s ease 2;box-shadow:0 0 0 6px rgba(213,172,73,.6)}@keyframes pinhl{50%{transform:rotate(-45deg) scale(1.35)}}
+.est-dot{border-style:dashed!important;background:transparent!important;box-shadow:0 0 0 1px var(--text)!important}
+.map-reset{width:34px;height:34px;background:#fff;border:2px solid rgba(0,0,0,.25);border-radius:4px;cursor:pointer;font-size:1.15rem;line-height:1;color:#222}.map-reset:hover{background:#f3f3f3}
+.pop-links{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:.3rem}
+.k24-num-wrap{background:none;border:0}.k24-num{display:grid;place-items:center;min-width:28px;height:28px;border-radius:50%;background:#7a1f2b;color:#fff;font:700 .85rem var(--sans);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);padding:0 4px}.k24-num.start{border-radius:14px;background:#103D2F;font-size:.72rem}
+.geo-tools{grid-column:1/-1;padding:.6rem .8rem;border:1px dashed var(--line);border-radius:10px;background:var(--surface-2)}
+.plan-map{height:clamp(300px,50vh,480px);margin:.8rem 0}
+.stops{list-style:none;padding:0;margin:1rem 0}.stops li{display:grid;grid-template-columns:34px 1fr;gap:.8rem;padding:.7rem 0;border-bottom:1px dashed var(--line)}.stops .num{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#7a1f2b;color:#fff;font:700 .85rem var(--sans)}.stops small{display:block}
+.btn-row.tight{margin:.3rem 0 0}.trip{padding:.6rem 0;border-bottom:1px dashed var(--line)}
+.near.near li b{font-size:.85rem;font-weight:600;text-align:right}.near li{align-items:flex-start}
+ul.check{list-style:none;padding:0;margin:0 0 .6rem}ul.check li{display:flex;justify-content:space-between;gap:.8rem;align-items:center;flex-wrap:wrap;padding:.2rem 0;border-bottom:1px dashed var(--line)}ul.check input[type=date]{min-height:36px;font-size:.85rem}
+.planner-form .fields{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+#print-sheet{display:none}
+@media print{
+  body>*:not(#print-sheet){display:none!important}body::before{display:none}
+  #print-sheet{display:block!important;color:#000;background:#fff;font:11pt/1.4 Georgia,serif;padding:0}
+  #print-sheet h1{font-size:18pt}#print-sheet h2{font-size:12pt;margin:.9em 0 .2em;break-after:avoid}#print-sheet table{width:100%;border-collapse:collapse}#print-sheet td{border-bottom:1px solid #bbb;padding:2px 6px;font-size:10pt}#print-sheet tr{break-inside:avoid}
+}
