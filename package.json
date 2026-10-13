@@ -1,0 +1,2 @@
+{ "name": "k24-karnataka-post-trails", "version": "3.0.0", "private": true, "description": "Static site, no build step. npm test runs the data and label checks.",
+  "scripts": { "test": "node tools/validate-data.js", "serve": "python3 -m http.server 8000" } }

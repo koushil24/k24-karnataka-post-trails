@@ -1,57 +1,49 @@
 # K_24 Karnataka Post Trails — *Every Postmark Tells a Story.*
 
-A static, no-build website: vanilla HTML/CSS/JavaScript. Works on GitHub Pages as-is, needs no API keys or paid services.
-(Chosen over React + Vite because no package registry was reachable when this was built, and the brief says not to mix architectures.)
+A static website (plain HTML/CSS/JS, **no build step**) for the Karnataka Philately Passport: 100 destinations in the passport's own 30-district order, a district directory, an interactive map, a journey planner, a collection archive, expenses and blogs. Works on GitHub Pages as-is; no accounts, no API keys, no paid services.
 
-## Run locally
-```bash
-cd k24-karnataka-post-trails
-python3 -m http.server 8000      # or: npx serve .
-# open http://localhost:8000
-```
-Opening `index.html` directly (file://) also works.
+## Deploy (GitHub Pages)
+1. In your repository, upload **every file and folder of this project** (replace the old ones). Keep the folder names exactly: `assets`, `css`, `js`, `tools`.
+2. Settings → Pages → Deploy from a branch → `main` / `(root)`.
+3. Wait ~1 minute, open `https://USERNAME.github.io/REPO/` in a private tab.
+If anything is missing or from an older upload, the site **names the exact file on screen** instead of spinning forever.
 
-## Deploy to GitHub Pages
-1. Create a repository (e.g. `k24-post-trails`) and push these files to the root of the `main` branch.
-2. Repo → **Settings → Pages** → Source: *Deploy from a branch* → `main` / `/ (root)` → Save.
-3. Your site appears at `https://USERNAME.github.io/REPO/`.
-4. No base-path setting is needed: all paths are relative and routes use `#/…`, so refreshing any page works.
-5. Optional, for WhatsApp/Facebook preview cards and a real sitemap: `node tools/generate-share-pages.js https://USERNAME.github.io/REPO/`, then commit the new `share/` folder, `sitemap.xml` and `robots.txt`. Set `SITE.baseUrl` in `js/data.js` too.
+Local: `python3 -m http.server 8000` → http://localhost:8000. Tests: `npm test` (no dependencies; checks record counts, serials, district order, PIN/coordinate formats, and distance labels).
+
+## What the 100 records are (and are not)
+* **Structure is from your passport photos**: 30 districts in index order, the serial numbers (1–100) read from the passport map, and each district's first page from the index. Cross-check built into `npm test`: the index page gaps equal exactly 2 pages × destinations in every district.
+* **Destination names, post offices, PINs and coordinates are NOT pre-filled.** None could be verified, so they show “Pending verification” / “Not available”. Nothing is invented.
+* **Passport page numbers**: only the district's first page is known. Each record shows an *inferred* page (“≈ p.N”, 2 pages per destination) clearly marked; enter the real page to replace it.
+* **Candidate list**: 106 names from the unofficial community site philatelypassport.in are included as an optional *picker* in each record's editor. They are **not matched to your serial numbers** (that site's per-district counts differ from your passport) and must be checked against your passport page and official sources.
+
+## Verification rules (computed, never typed)
+* **Pending** – no destination name.
+* **Partially verified** – a name exists but something is missing.
+* **Fully verified** – destination, designated post office, 6-digit PIN, *confirmed* coordinates, an official source link (`indiapost.gov.in`, `karnatakapost.gov.in` or `data.gov.in`) **and** a verification date.
+Each record keeps separate fields: destination name, designated post office, PIN, office type, passport/current district, coordinates + source + status (none / from map search / confirmed), source link, verified date.
+Authoritative sources to verify against: India Post PIN directory (https://www.indiapost.gov.in/rti/pincodelist), post-office locator (https://www.indiapost.gov.in/VAS/Pages/LocatePostOffices.aspx), Karnataka Postal Circle (https://karnatakapost.gov.in/).
+
+## Districts
+The directory keeps the passport's 30 districts in order. Karnataka officially has 31 districts; **Bengaluru Rural is not in the passport index**. “Ramanagara” was renamed **Bengaluru South** (notified 23 May 2025) and the passport still prints the old name; “Yadagiri” = official Yadgir. Each record stores both the passport district and the current official district.
+
+## Distances
+* **Straight-line** (great-circle) distance from the chosen start (Mysuru, Bengaluru or a custom point) is calculated from stored coordinates and always labelled “≈ N km straight-line (not road distance)”.
+* **Road distance** appears only after you press *Get road route*, using the free public OSRM server; it is labelled “by road (OSRM routing estimate)”. If it fails, straight-line values stay and the page says so.
+* The itinerary is a **proximity-based suggested order** (nearest next stop), not an optimised driving route. Trips are chunks of that order; nothing assumes everything can be done in one trip.
+* Records without coordinates get “Not available” — never a made-up number. Google Maps / OpenStreetMap links use the destination's coordinates.
+
+## Map
+Leaflet + OpenStreetMap tiles (attribution shown), marker clustering, per-status colours, dashed outline for unconfirmed coordinates, reset button, district / visit / verification filters, place search (OSM Nominatim, only when you press Find, cached). Directory ↔ map: “Show on map” flies to the marker; clicking a marker highlights its directory row. Only real coordinates get markers.
+Add coordinates: open a record → *Find coordinates on OpenStreetMap* → check the position → set status “Confirmed”.
+
+## Data & privacy
+Everything you enter lives in this browser's localStorage (single device, not synced). Use *Import / export → Full backup*. CSV export of **verified records only** and of all 100; CSV/JSON import updates records by serial. Third parties contacted: cdnjs (GSAP, Leaflet, marker-cluster), Google Fonts, OpenStreetMap tiles/Nominatim, OSRM (only on request).
 
 ## Files
-| Path | Purpose |
-|---|---|
-| `index.html` | Shell, inline branded loader, nav, footer, script tags |
-| `css/styles.css` | All styling; colour tokens at the top; light + dark themes |
-| `js/data.js` | **Edit me:** site info, seed passport list, blogs, collection (all marked demo) |
-| `js/store.js` | localStorage store, schema v1, JSON/CSV import-export |
-| `js/ui.js` | Escaping, i18n (EN/ಕನ್ನಡ), illustrative artwork, dialogs/forms, toasts |
-| `js/map.js` | Leaflet + OpenStreetMap wrapper with loading/error handling |
-| `js/anim.js` | GSAP/ScrollTrigger hero + parallax, IntersectionObserver reveals, counters |
-| `js/views.js`, `js/views2.js` | Pages: home, passport, explore, destination, blogs, collection, expenses, planner, about, contact, privacy, 404 |
-| `js/app.js` | Hash router, theme, drawer, search, boot |
-| `assets/logo-full.png` | Your original logo, untouched. `logo-emblem.png` (round crop for nav/loader/favicons), `logo-full-640.png` (web size), `og-image.png` |
-| `404.html` | GitHub Pages fallback → redirects to the app |
-| `tools/generate-share-pages.js` | Optional static share pages + sitemap |
+`index.html` shell + loader + failure diagnostics · `css/styles.css` · `js/data.js` districts, 100 skeleton records, candidates · `js/store.js` storage, verification rules, CSV · `js/geo.js` distances/labels/OSRM · `js/map.js` · `js/directory.js` checklist + explore · `js/planner.js` · `js/views.js`/`views2.js` home, destination, blogs, collection, expenses, static pages · `js/app.js` router · `tools/validate-data.js` tests · `tools/generate-share-pages.js` optional share previews · `assets/` your logo files.
 
-## Adding your real content
-* **Passport list:** Passport page → *Import / export → Import CSV*. Export first to get the exact column layout. Columns: id, name, district, attraction, category, postOffice, pin, address, source, verifiedDate, visitDate, planned, visited, cancellationCollected, blogPublished, notes, history, route, transport, nearby, photos (separated by `|`), blogUrl, lat, lng, coordsVerified, demo. Then delete the demo rows. Set *Set official total…* so completion % uses the official count.
-* Nothing is ever marked visited for you; tick *Visited* when editing a location.
-* **Coordinates** in the demo rows are approximate town/attraction positions, not verified post-office locations; tick *I verified these coordinates* only after checking.
-* **Photos:** add links (`https://…`) to images you own or are licensed to use. Hosting them in the repo under `assets/photos/` and linking `assets/photos/x.jpg` works too. The built-in scenes are original vector art, labelled as illustrations.
-* **Blog posts, collection items, expenses:** add/edit/delete in the browser. To publish posts for all visitors, add them to `K.BLOGS` in `js/data.js` (browser-created posts exist only in your browser).
-* **Site details:** edit `SITE` in `js/data.js` (name, e-mail for the contact form, social links, about text, `baseUrl`).
-* **Colours:** CSS variables at the top of `css/styles.css`.
-
-## Honest limitations
-* **Data is local.** localStorage is per browser and per device, not synced, and is lost if browser data is cleared. Use *Full backup* often. Visitors see their own local copy of the seed data, not yours — this prototype is a personal tool plus a public shell. Syncing needs a real backend later; the JSON schema (`schemaVersion: 1`) is designed to migrate.
-* **Routing** uses `#/` URLs so GitHub Pages refresh always works. Search engines mostly ignore fragments, so per-page SEO is limited to the share pages above. Page titles/meta update dynamically for browsers.
-* **CDN dependencies** (GSAP, ScrollTrigger, Leaflet from cdnjs; Google Fonts) are not pinned with integrity hashes. If they fail, the site still works: no animation library → CSS motion; no Leaflet → list view with an error message. For production, vendor them into `assets/vendor/`.
-* **Map tiles** come from `tile.openstreetmap.org`, which is fine for a small personal site with attribution but has a usage policy; switch the tile URL in `js/map.js` if traffic grows.
-* **Planner** only uses straight-line distance between coordinates you've stored. It never invents routes, opening hours or fares, and flags sample data.
-* **Kannada** covers navigation and key headings only; please have a native speaker review the wording.
-* **Newsletter** does not exist (no backend). The contact form opens your e-mail app via `mailto:` and needs `SITE.email`.
-* Not tested here: the live GSAP and Leaflet code paths (the build sandbox had no internet). Test the map and hero animation in your browser after deploying.
-
-## Placeholders to replace
-Passport locations (demo), blog posts (demo drafts), collection cards (demo), `SITE.owner`, `SITE.email`, `SITE.social`, `SITE.about`, `SITE.baseUrl`.
+## Known limitations
+* Names, post offices, PINs, coordinates and real passport pages still have to be entered/verified by you (or from the official sources above).
+* Live GSAP animation, Leaflet map, clustering and OSRM were not exercisable in the build sandbox (no internet); the fallbacks were tested, the live paths need a check in your browser after deploying.
+* Kannada covers navigation and key headings only; have a native speaker review.
+* Public OSM tile and OSRM/Nominatim servers are for light use; switch providers if traffic grows.

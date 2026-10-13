@@ -22,7 +22,7 @@
   (function(){var E=window.__k24Errors=[];function add(m){if(E.length<30)E.push(m)}
   addEventListener('error',function(e){var t=e.target;if(t&&t!==window&&(t.tagName==='SCRIPT'||t.tagName==='LINK'||t.tagName==='IMG')){add('Could not load '+(t.src||t.href||'').split('?')[0].replace(location.href.split('#')[0].replace(/[^\/]*$/,''),''));}else{add((e.message||'Script error')+' ['+String(e.filename||'').split('/').pop()+':'+(e.lineno||'?')+']')}},true);
   addEventListener('unhandledrejection',function(e){add('Unhandled promise: '+((e.reason&&e.reason.message)||e.reason))});
-  window.__k24Need=['data','store','ui','map','anim','views','views2','app'];window.__k24Build='2026.10.13a';
+  window.__k24Need=['data','store','geo','ui','map','anim','views','directory','views2','planner','app'];window.__k24Build='2026.10.13b';
   window.__k24Problems=function(){var K=window.K24,m=(K&&K.mods)||{},p=[];window.__k24Need.forEach(function(n){if(!m[n])p.push('js/'+(n==='views2'?'views2':n)+'.js did not finish loading (missing, blocked, or crashed)');else if(m[n]!==window.__k24Build)p.push('js/'+n+'.js is from a different upload ('+m[n]+') — re-upload every file together')});return p};
   window.__k24Fatal=function(extra){var box=document.getElementById('app-error');if(!box)return;var list=(extra||[]).concat(window.__k24Problems()),errs=window.__k24Errors.filter(function(x){return !/cdnjs|googleapis|gstatic/.test(x)});
   var ul=document.getElementById('app-error-list');ul.innerHTML='';list.concat(errs).forEach(function(x){var li=document.createElement('li');li.textContent=x;ul.appendChild(li)});if(!ul.children.length){var li=document.createElement('li');li.textContent='No specific error was captured. Check your connection and reload.';ul.appendChild(li)}
@@ -54,7 +54,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Kannada:wght@400;600&family=Playfair+Display:ital,wght@0,600;0,700;1,500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" data-leaflet="1">
-  <link rel="stylesheet" href="css/styles.css?v=2026.10.13a">
+  <link rel="stylesheet" href="css/styles.css?v=2026.10.13b">
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -134,13 +134,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" defer></script>
-  <script src="js/data.js?v=2026.10.13a" defer></script>
-  <script src="js/store.js?v=2026.10.13a" defer></script>
-  <script src="js/ui.js?v=2026.10.13a" defer></script>
-  <script src="js/map.js?v=2026.10.13a" defer></script>
-  <script src="js/anim.js?v=2026.10.13a" defer></script>
-  <script src="js/views.js?v=2026.10.13a" defer></script>
-  <script src="js/views2.js?v=2026.10.13a" defer></script>
-  <script src="js/app.js?v=2026.10.13a" defer></script>
+  <script src="js/data.js?v=2026.10.13b" defer></script>
+  <script src="js/store.js?v=2026.10.13b" defer></script>
+  <script src="js/geo.js?v=2026.10.13b" defer></script>
+  <script src="js/ui.js?v=2026.10.13b" defer></script>
+  <script src="js/map.js?v=2026.10.13b" defer></script>
+  <script src="js/anim.js?v=2026.10.13b" defer></script>
+  <script src="js/views.js?v=2026.10.13b" defer></script>
+  <script src="js/directory.js?v=2026.10.13b" defer></script>
+  <script src="js/views2.js?v=2026.10.13b" defer></script>
+  <script src="js/planner.js?v=2026.10.13b" defer></script>
+  <script src="js/app.js?v=2026.10.13b" defer></script>
 </body>
 </html>
