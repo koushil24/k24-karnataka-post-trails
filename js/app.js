@@ -61,16 +61,16 @@
     inp.addEventListener('input', () => {
       const q = inp.value.trim().toLowerCase(); if (q.length < 2) { out.innerHTML = '<p class="muted">Keep typing…</p>'; return; }
       const has = (s) => String(s).toLowerCase().includes(q);
-      const loc = S.list('passport').filter((l) => has([l.name, l.district, l.attraction, l.postOffice, l.pin].join(' '))).slice(0, 8);
+      const loc = S.list('passport').filter((l) => has([K.dn(l), l.passportDistrict, l.currentDistrict, l.postOffice, l.pin, '#' + l.serial].join(' '))).slice(0, 8);
       const posts = S.list('blogs').filter((b) => has(b.title + ' ' + b.excerpt)).slice(0, 5), items = S.list('collection').filter((c) => has(c.title + ' ' + c.location)).slice(0, 4);
       const li = (href, a, b) => `<li><a href="${href}">${esc(a)} <small class="muted">${esc(b)}</small></a></li>`;
-      out.innerHTML = loc.length + posts.length + items.length ? [loc.length ? `<h3>Locations</h3><ul class="results">${loc.map((l) => li('#/destination/' + enc(l.id), l.name, l.district)).join('')}</ul>` : '', posts.length ? `<h3>Posts</h3><ul class="results">${posts.map((b) => li('#/blog/' + enc(b.id), b.title, b.category)).join('')}</ul>` : '', items.length ? `<h3>Collection</h3><ul class="results">${items.map((c) => li('#/collection', c.title, c.location)).join('')}</ul>` : ''].join('') : `<p class="muted">Nothing found for “${esc(inp.value.trim())}”.</p>`;
+      out.innerHTML = loc.length + posts.length + items.length ? [loc.length ? `<h3>Locations</h3><ul class="results">${loc.map((l) => li('#/destination/' + enc(l.id), '#' + l.serial + ' ' + K.dn(l), l.passportDistrict)).join('')}</ul>` : '', posts.length ? `<h3>Posts</h3><ul class="results">${posts.map((b) => li('#/blog/' + enc(b.id), b.title, b.category)).join('')}</ul>` : '', items.length ? `<h3>Collection</h3><ul class="results">${items.map((c) => li('#/collection', c.title, c.location)).join('')}</ul>` : ''].join('') : `<p class="muted">Nothing found for “${esc(inp.value.trim())}”.</p>`;
     });
     out.addEventListener('click', (e) => { if (e.target.closest('a')) d.close(); });
     inp.focus();
   }
 
-  (K.mods = K.mods || {}).app = '2026.10.13a';
+  (K.mods = K.mods || {}).app = '2026.10.13b';
   function boot() {
     const bad = window.__k24Problems ? window.__k24Problems() : [];
     if (bad.length) { window.__k24Fatal([]); return; }

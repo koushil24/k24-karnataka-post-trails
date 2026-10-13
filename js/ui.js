@@ -136,4 +136,4 @@
   });
   K.readingTime = (text) => Math.max(1, Math.round(String(text || '').split(/\s+/).filter(Boolean).length / 200));
 })();
-(window.K24.mods = window.K24.mods || {})['ui'] = '2026.10.13a';
+(window.K24.mods = window.K24.mods || {})['ui'] = '2026.10.13b';

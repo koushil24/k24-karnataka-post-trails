@@ -55,4 +55,4 @@
   function cleanup() { cleanups.forEach((f) => { try { f(); } catch (e) {} }); cleanups = []; if (st() && st().getAll) st().getAll().forEach((t) => t.kill()); }
   K.anim = { run, cleanup, listIn, countUp };
 })();
-(window.K24.mods = window.K24.mods || {})['anim'] = '2026.10.13a';
+(window.K24.mods = window.K24.mods || {})['anim'] = '2026.10.13b';

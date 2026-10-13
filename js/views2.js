@@ -8,7 +8,7 @@
   const B = { q: '', cat: '' };
   function blogFields() {
     return [{ name: 'title', label: 'Title', required: true, full: true, max: 160 }, { name: 'category', label: 'Category', type: 'select', options: K.CATEGORIES, required: true },
-      { name: 'destinationId', label: 'Related passport location', type: 'select', options: S.list('passport').map((l) => ({ v: l.id, l: l.name })) },
+      { name: 'destinationId', label: 'Related passport destination', type: 'select', options: S.list('passport').filter((l) => l.name).map((l) => ({ v: l.id, l: l.name })) },
       { name: 'date', label: 'Publish date (leave empty for “coming soon”)', type: 'date' }, { name: 'cover', label: 'Cover image link (your own photo)', type: 'url', full: true, max: 2000 },
       { name: 'excerpt', label: 'Short summary', type: 'textarea', rows: 2, full: true, max: 400 }, { name: 'body', label: 'Story (separate paragraphs with a blank line)', type: 'textarea', rows: 10, full: true, max: 30000 },
       { name: 'demo', label: 'Mark as demo / placeholder', type: 'checkbox', full: true }];
@@ -37,7 +37,7 @@
     return { title: b.title + ' — K_24 Karnataka Post Trails', desc: b.excerpt || 'Travel story from the Karnataka Philately Passport trail.', image: safeUrl(b.cover),
       html: `<article class="post"><header class="dest-cover short"><img class="art" src="${K.sceneUri(K.kindOf(b.category))}" alt="Illustrative artwork (not a photograph)">${safeUrl(b.cover) ? `<img class="real" src="${esc(safeUrl(b.cover))}" alt="${esc(b.title)}">` : ''}<div class="dest-title wrap"><a class="back" href="#/blogs">${ic('left')} All posts</a><div class="tags"><span class="tag">${esc(b.category)}</span>${demoTag(b.demo)}</div><h1>${esc(b.title)}</h1><p>${b.date ? esc(fmtDate(b.date)) : 'Coming soon'} · ${K.readingTime(b.body)} min read</p></div></header>
         <div class="wrap narrow"><div class="prose-body">${b.body.split(/\n{2,}/).map((p) => `<p>${esc(p)}</p>`).join('')}</div>
-          ${d ? `<p class="callout">Passport location: <a href="#/destination/${enc(d.id)}">${esc(d.name)}</a>${d.district ? ' · ' + esc(d.district) : ''}</p>` : ''}
+          ${d ? `<p class="callout">Passport location: <a href="#/destination/${enc(d.id)}">${esc(K.dn(d))}</a> · ${esc(d.passportDistrict)}</p>` : ''}
           <div class="share" role="group" aria-label="Share this post"><span class="muted">Share</span>${navigator.share ? `<button class="btn btn-ghost btn-sm" data-share>${ic('share')} Share…</button>` : ''}<button class="btn btn-ghost btn-sm" data-copy>Copy link</button><a class="btn btn-ghost btn-sm" target="_blank" rel="noopener noreferrer" href="https://wa.me/?text=${enc(text + ' ' + url)}">WhatsApp</a><a class="btn btn-ghost btn-sm" target="_blank" rel="noopener noreferrer" href="https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}">X / Twitter</a></div>
           <div class="btn-row"><button class="btn btn-ghost" data-edit>${ic('edit')} Edit post</button><button class="btn btn-ghost danger" data-del>${ic('trash')} Delete</button></div></div>
         ${more.length ? `<section class="wrap block"><h2>Related posts</h2><div class="grid g3">${more.map(blogCard).join('')}</div></section>` : ''}</article>`,
@@ -79,7 +79,7 @@
     const cur = id ? S.find('expenses', id) : null;
     K.form({ title: cur ? 'Edit expense' : 'Add expense', values: cur || { date: new Date().toISOString().slice(0, 10), category: 'Transport' }, fields: [
       { name: 'date', label: 'Date', type: 'date', required: true }, { name: 'amount', label: 'Amount (₹)', type: 'number', required: true, min: 0, step: '0.01', inputmode: 'decimal' },
-      { name: 'destination', label: 'Destination', type: 'select', options: S.list('passport').map((l) => l.name), help: 'Leave empty for general trip costs.' }, { name: 'category', label: 'Category', type: 'select', required: true, options: K.EXPENSE_CATEGORIES },
+      { name: 'destination', label: 'Destination', type: 'select', options: S.list('passport').filter((l) => l.name).map((l) => l.name), help: 'Leave empty for general trip costs.' }, { name: 'category', label: 'Category', type: 'select', required: true, options: K.EXPENSE_CATEGORIES },
       { name: 'description', label: 'Description', required: true, full: true, max: 200 }, { name: 'notes', label: 'Notes', type: 'textarea', rows: 2, full: true, max: 500 }],
       onSubmit(d) { d.id = cur ? cur.id : S.uid(); d.demo = cur ? cur.demo : false; S.upsert('expenses', d); K.toast(cur ? 'Expense updated.' : 'Expense added.'); if (done) done(); } });
   };
@@ -112,57 +112,6 @@
         else if (b.hasAttribute('data-export')) { const q = (v) => { let s = String(v == null ? '' : v); if (/^[=+@\-]/.test(s) && isNaN(Number(s))) s = "'" + s; return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
           K.download('k24-expenses.csv', ['date,destination,category,description,amount_inr,notes'].concat(S.list('expenses').map((x) => [x.date, x.destination, x.category, x.description, x.amount, x.notes].map(q).join(','))).join('\r\n'), 'text/csv'); } }); } });
 
-  /* ================= JOURNEY PLANNER ================= */
-  const PL = { start: '', sel: [], mode: 'Any', budget: '', days: 1, incVisited: false };
-  const NEAR_KM = 150;
-  function planHTML() {
-    const pass = S.list('passport').filter((l) => l.lat != null), start = pass.find((l) => l.id === PL.start);
-    const chosen = PL.sel.map((id) => pass.find((l) => l.id === id)).filter(Boolean);
-    let out = '';
-    if (!pass.length) return empty('No locations with coordinates', 'Add latitude and longitude to your passport locations to get suggestions.');
-    const dist = (a, b) => K.km(a, b);
-    if (chosen.length) {
-      const order = []; let cur = start || chosen[0], left = chosen.filter((l) => l !== cur); if (!start) order.push(cur);
-      let total = 0, legs = [];
-      while (left.length) { left.sort((a, b) => dist(cur, a) - dist(cur, b)); const n = left.shift(); const d = dist(cur, n); legs.push({ from: cur, to: n, km: d }); total += d; order.push(n); cur = n; }
-      const days = Math.max(1, parseInt(PL.days, 10) || 1), per = Math.ceil(order.length / days), groups = [];
-      for (let i = 0; i < order.length; i += per) groups.push(order.slice(i, i + per));
-      const dests = {}; S.list('expenses').forEach((e) => { if (e.destination) dests[e.destination] = (dests[e.destination] || 0) + e.amount; });
-      const names = Object.keys(dests), avg = names.length ? Object.values(dests).reduce((a, b) => a + b, 0) / names.length : 0, est = avg * order.length, budget = Number(PL.budget) || 0;
-      const sample = (start ? [start] : []).concat(order).some((l) => l.demo || !l.coordsVerified);
-      out += `<div class="card pad plan"><h2>Your plan</h2><p><strong>${order.length}</strong> stop${order.length === 1 ? '' : 's'} over <strong>${days}</strong> day${days === 1 ? '' : 's'}${start ? ' from ' + esc(start.name) : ''} · about <strong>${Math.round(total)} km</strong> straight-line · preferred mode: <strong>${esc(PL.mode)}</strong></p>
-        <ol class="days">${groups.map((g, i) => `<li><strong>Day ${i + 1}</strong>: ${g.map((l) => `<a href="#/destination/${enc(l.id)}">${esc(l.name)}</a>`).join(' → ')}</li>`).join('')}</ol>
-        <p class="small">${legs.length ? 'Legs: ' + legs.map((l) => esc(l.from.name) + ' → ' + esc(l.to.name) + ' ≈ ' + Math.round(l.km) + ' km').join(' · ') : 'Single stop.'}</p>
-        <p class="budget">${avg ? `Budget check: your logged expenses average <strong>${inr(avg)}</strong> per destination, so ${order.length} stop${order.length === 1 ? '' : 's'} ≈ <strong>${inr(est)}</strong>${budget ? (est > budget ? ` — above your ${inr(budget)} budget.` : ` — within your ${inr(budget)} budget.`) : '.'}` : 'No budget estimate yet — log expenses against destinations and an estimate will appear here. No fares or prices are looked up.'}</p>
-        ${sample ? '<p class="warn">Based on sample data: some coordinates are approximate and unverified. Distances are straight-line, not road or rail distances. Confirm routes, timings and fares with operators before you travel.</p>' : '<p class="note">Distances are straight-line, not road or rail distances. Confirm routes, timings and fares before travelling.</p>'}</div>`;
-    } else if (start) {
-      const near = pass.filter((l) => l !== start && (PL.incVisited || !l.visited)).map((l) => ({ l, d: dist(start, l) })).filter((x) => x.d <= NEAR_KM).sort((a, b) => a.d - b.d);
-      out += `<div class="card pad"><h2>Suggested nearby locations ${demoTag(start.demo)}</h2>${near.length ? `<ul class="near">${near.map((x) => `<li><span><a href="#/destination/${enc(x.l.id)}">${esc(x.l.name)}</a> <small class="muted">${esc(x.l.district)} · ≈ ${Math.round(x.d)} km straight-line</small></span><button class="btn btn-ghost btn-sm" data-pick="${esc(x.l.id)}">Add to plan</button></li>`).join('')}</ul>` : `<p class="muted">No other ${PL.incVisited ? '' : 'unvisited '}locations within ${NEAR_KM} km of ${esc(start.name)} in your list.</p>`}<p class="note">Suggestions use straight-line distance between the coordinates stored in your list${S.stats().unverifiedCoords ? ' — some are approximate samples' : ''}. They are not routes.</p></div>`;
-    } else out += empty('Pick where you’re starting', 'Choose a starting location to see nearby suggestions, or tick destinations below and press “Plan trip”.');
-    return out;
-  }
-  V.planner = () => {
-    const pass = S.list('passport').filter((l) => l.lat != null);
-    return { title: 'Journey Planner — K_24 Karnataka Post Trails', desc: 'Plan philately trips across Karnataka with nearby suggestions based on your own data.',
-      html: `<div class="wrap">${pageHead('Journey Planner', 'Plan your trips efficiently with nearby locations.')}
-        <form class="card pad planner-form" id="pl-form" novalidate><div class="fields"><div class="field"><label for="pl-start">Start location</label><select id="pl-start"><option value="">No starting point</option>${pass.map((l) => `<option value="${esc(l.id)}" ${PL.start === l.id ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select></div>
-          <div class="field"><label for="pl-budget">Available budget (₹)</label><input id="pl-budget" type="number" min="0" step="100" inputmode="numeric" value="${esc(PL.budget)}"></div>
-          <div class="field"><label for="pl-days">Duration (days)</label><input id="pl-days" type="number" min="1" max="30" step="1" value="${esc(PL.days)}"></div>
-          <div class="field"><label for="pl-mode">Travel mode</label><select id="pl-mode">${K.TRAVEL_MODES.map((m) => `<option ${PL.mode === m ? 'selected' : ''}>${m}</option>`).join('')}</select></div>
-          <div class="field field-check full"><label><input type="checkbox" id="pl-inc" ${PL.incVisited ? 'checked' : ''}> <span>Include places I’ve already visited</span></label></div></div>
-          <fieldset class="picker"><legend>Destinations to include</legend>${pass.length ? pass.map((l) => `<label class="pick"><input type="checkbox" value="${esc(l.id)}" ${PL.sel.includes(l.id) ? 'checked' : ''}> <span>${esc(l.name)}${l.visited ? ' <small class="muted">(visited)</small>' : ''}</span></label>`).join('') : '<p class="muted">Add coordinates to your locations to use them here.</p>'}</fieldset>
-          <div class="btn-row"><button class="btn btn-primary" type="submit">Plan trip</button><button class="btn btn-ghost" type="button" data-clear>Clear selection</button></div></form>
-        <div id="pl-out" aria-live="polite">${planHTML()}</div></div>`,
-      after(root) {
-        const out = $('#pl-out', root), refresh = () => { out.innerHTML = planHTML(); K.anim.listIn(out); };
-        const read = () => { PL.start = $('#pl-start', root).value; PL.mode = $('#pl-mode', root).value; PL.budget = $('#pl-budget', root).value; PL.days = Math.max(1, Math.min(30, parseInt($('#pl-days', root).value, 10) || 1)); PL.incVisited = $('#pl-inc', root).checked; PL.sel = $$('.picker input:checked', root).map((i) => i.value); };
-        $('#pl-form', root).addEventListener('submit', (e) => { e.preventDefault(); read(); if (!PL.sel.length && !PL.start) K.toast('Choose a start location or at least one destination.', 'error'); refresh(); });
-        $('#pl-start', root).addEventListener('change', () => { read(); refresh(); });
-        $('[data-clear]', root).addEventListener('click', () => { PL.sel = []; $$('.picker input', root).forEach((i) => (i.checked = false)); refresh(); });
-        out.addEventListener('click', (e) => { const b = e.target.closest('[data-pick]'); if (!b) return; read(); if (!PL.sel.includes(b.dataset.pick)) PL.sel.push(b.dataset.pick); $$('.picker input', root).forEach((i) => (i.checked = PL.sel.includes(i.value))); refresh(); });
-      } };
-  };
-
   /* ================= STATIC PAGES ================= */
   V.about = () => {
     const soc = K.SITE.social, links = [['Instagram', soc.instagram], ['YouTube', soc.youtube]].filter((x) => safeUrl(x[1]));
@@ -182,4 +131,4 @@
   V.notfound = (o) => ({ title: 'Page not found — K_24 Karnataka Post Trails', desc: 'This page could not be found.', status: 404,
     html: `<div class="wrap nf"><img src="${K.postmarkUri('Lost in transit', '', 'Return to sender')}" alt="" width="220" height="220"><div><h1>${o && o.what ? 'That ' + esc(o.what) + ' isn’t in your list' : 'This letter went astray'}</h1><p class="lede">The address you followed doesn’t match a page here${o && o.what ? ' — it may have been deleted or renamed' : ''}.</p><p class="btn-row"><a class="btn btn-primary" href="#/">Back to home</a><a class="btn btn-ghost" href="#/passport">Open passport</a></p></div></div>` });
 })();
-(window.K24.mods = window.K24.mods || {})['views2'] = '2026.10.13a';
+(window.K24.mods = window.K24.mods || {})['views2'] = '2026.10.13b';
