@@ -144,3 +144,4 @@
   };
   K.store = S;
 })();
+(window.K24.mods = window.K24.mods || {})['store'] = '2026.10.13a';

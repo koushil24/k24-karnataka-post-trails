@@ -167,7 +167,7 @@
   V.about = () => {
     const soc = K.SITE.social, links = [['Instagram', soc.instagram], ['YouTube', soc.youtube]].filter((x) => safeUrl(x[1]));
     return { title: 'About — K_24 Karnataka Post Trails', desc: 'About the K_24 Karnataka Post Trails blog and its author.',
-      html: `<div class="wrap narrow">${pageHead('About me')}<div class="about" data-reveal><img src="assets/logo.svg" alt="K_24 Karnataka Post Trails emblem" width="160" height="160"><div>${K.SITE.about.map((p) => `<p>${esc(p)}</p>`).join('')}<p><strong>${esc(K.SITE.owner)}</strong></p>${links.length ? `<p class="btn-row">${links.map((l) => `<a class="btn btn-ghost" target="_blank" rel="noopener noreferrer" href="${esc(safeUrl(l[1]))}">${l[0]}</a>`).join('')}</p>` : ''}</div></div>
+      html: `<div class="wrap narrow">${pageHead('About me')}<div class="about" data-reveal><img class="about-logo" src="assets/logo-full-640.png" alt="K_24 Karnataka Post Trails logo" width="240" height="240" loading="lazy"><div>${K.SITE.about.map((p) => `<p>${esc(p)}</p>`).join('')}<p><strong>${esc(K.SITE.owner)}</strong></p>${links.length ? `<p class="btn-row">${links.map((l) => `<a class="btn btn-ghost" target="_blank" rel="noopener noreferrer" href="${esc(safeUrl(l[1]))}">${l[0]}</a>`).join('')}</p>` : ''}</div></div>
         <section class="card pad" data-reveal><h2>How this site works</h2><ul class="plain"><li>It’s a static website: no server, no account, no tracking.</li><li>Your passport progress, blog drafts, collection and expenses are stored in <em>this browser only</em>. Export a backup from the Passport page.</li><li>Illustrative artwork is original vector art, not photography. Photos appear only when you add links to your own.</li></ul></section></div>` };
   };
   V.contact = () => ({ title: 'Contact — K_24 Karnataka Post Trails', desc: 'Get in touch with K_24 Karnataka Post Trails.',
@@ -182,3 +182,4 @@
   V.notfound = (o) => ({ title: 'Page not found — K_24 Karnataka Post Trails', desc: 'This page could not be found.', status: 404,
     html: `<div class="wrap nf"><img src="${K.postmarkUri('Lost in transit', '', 'Return to sender')}" alt="" width="220" height="220"><div><h1>${o && o.what ? 'That ' + esc(o.what) + ' isn’t in your list' : 'This letter went astray'}</h1><p class="lede">The address you followed doesn’t match a page here${o && o.what ? ' — it may have been deleted or renamed' : ''}.</p><p class="btn-row"><a class="btn btn-primary" href="#/">Back to home</a><a class="btn btn-ghost" href="#/passport">Open passport</a></p></div></div>` });
 })();
+(window.K24.mods = window.K24.mods || {})['views2'] = '2026.10.13a';

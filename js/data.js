@@ -69,3 +69,4 @@
   K.TRAVEL_MODES = ['Any', 'Bus', 'Train', 'Car', 'Bike'];
   K.COLLECTION_TYPES = { cancellation: 'Cancellations', stamp: 'Stamps', cover: 'Special covers', postcard: 'Postcards' };
 })();
+(window.K24.mods = window.K24.mods || {})['data'] = '2026.10.13a';

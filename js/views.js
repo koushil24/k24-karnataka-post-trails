@@ -80,7 +80,7 @@
     const pts = [[60, 230], [200, 110], [350, 200], [520, 90], [650, 150]];
     return { title: 'K_24 Karnataka Post Trails — Every Postmark Tells a Story', desc: 'A personal blog documenting Karnataka Philately Passport journeys, pictorial cancellations, post offices and heritage destinations.',
       html: `<section class="hero" aria-labelledby="hero-title">${heroLayers()}<div class="hero-shade" aria-hidden="true"></div>
-        <div class="hero-inner"><div class="hero-copy"><div class="hero-logo"><img src="assets/logo.svg" alt="" width="64" height="64"><span><strong>K_24</strong> Karnataka Post Trails</span></div>
+        <div class="hero-inner"><div class="hero-copy"><div class="hero-logo"><img src="assets/logo-emblem.png" alt="" width="64" height="64"><span><strong>K_24</strong> Karnataka Post Trails</span></div>
           <h1 id="hero-title">${words}</h1><p class="hero-sub">${esc(K.t('mission'))}</p><p class="hero-cta"><a class="btn btn-gold" href="#/passport">${esc(K.t('start'))} ${ic('arrow')}</a></p></div>
           <div class="hero-art" aria-hidden="false"><div class="hero-stamp">${stampSVG('stamp-art')}</div>${cancelSVG('KARNATAKA')}</div></div></section>
         <div class="wrap">${dashboard(st, true)}
@@ -279,3 +279,4 @@
       } };
   };
 })();
+(window.K24.mods = window.K24.mods || {})['views'] = '2026.10.13a';

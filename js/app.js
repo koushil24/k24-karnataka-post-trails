@@ -70,7 +70,10 @@
     inp.focus();
   }
 
+  (K.mods = K.mods || {}).app = '2026.10.13a';
   function boot() {
+    const bad = window.__k24Problems ? window.__k24Problems() : [];
+    if (bad.length) { window.__k24Fatal([]); return; }
     try {
       K.store.load(); K.applyLang(); initTheme(); initDrawer();
       $('#search-btn').addEventListener('click', openSearch);
@@ -80,7 +83,7 @@
       if (!K.store.storageOk) { const n = document.createElement('div'); n.className = 'banner'; n.setAttribute('role', 'alert'); n.textContent = 'Your browser is blocking local storage, so changes won’t be saved after you close this tab. Export backups from the Passport page.'; document.body.insertBefore(n, document.body.firstChild); }
       $$('[data-year]').forEach((e) => { e.textContent = new Date().getFullYear(); });
       K.render();
-    } catch (e) { console.error(e); const m = $('#app-error'); if (m) m.hidden = false; window.dispatchEvent(new Event('k24:appready')); }
+    } catch (e) { console.error(e); window.__k24Fatal(['Startup error: ' + (e && e.message ? e.message : e)]); }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();

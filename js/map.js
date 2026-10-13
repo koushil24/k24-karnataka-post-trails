@@ -73,3 +73,4 @@
   }
   K.map = { mount, destroy, COLORS, LABELS };
 })();
+(window.K24.mods = window.K24.mods || {})['map'] = '2026.10.13a';
