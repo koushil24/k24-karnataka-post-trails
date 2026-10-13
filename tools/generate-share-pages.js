@@ -19,7 +19,7 @@ function page(type, id, title, desc) {
 <body><p><a href="${target}">${esc(title)}</a></p></body></html>`);
   urls.push(self);
 }
-K.PASSPORT.forEach((l) => page('destination', l.id, l.name, 'Post office details and travel notes for ' + l.name + (l.district ? ', ' + l.district : '') + '.'));
+K.PASSPORT.filter((l) => l.name).forEach((l) => page('destination', l.id, l.name, 'Post office details and travel notes for ' + l.name + (l.district ? ', ' + l.district : '') + '.'));
 K.BLOGS.forEach((b) => page('blog', b.id, b.title, b.excerpt));
 fs.writeFileSync(path.join(root, 'sitemap.xml'), '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n') + '\n</urlset>\n');
 fs.writeFileSync(path.join(root, 'robots.txt'), 'User-agent: *\nAllow: /\nSitemap: ' + base + 'sitemap.xml\n');
