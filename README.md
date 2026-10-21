@@ -1,6 +1,6 @@
 # K_24 Karnataka Post Trails — *Every Postmark Tells a Story.*
 
-A static website (plain HTML/CSS/JS, **no build step**) for the Karnataka Philately Passport: 100 destinations in the passport's own 30-district order, a district directory, an interactive map, a journey planner, a collection archive, expenses and blogs. Works on GitHub Pages as-is; no accounts, no API keys, no paid services.
+A static website (plain HTML/CSS/JS, **no build step**) for the Karnataka Philately Passport: the 100 post offices from your scanned passport in its own 30-district order, a tracker, a district directory, an interactive map, a journey planner, a collection archive, expenses and blogs. Works on GitHub Pages as-is; no accounts, no API keys, no paid services.
 
 ## Deploy (GitHub Pages)
 1. In your repository, upload **every file and folder of this project** (replace the old ones). Keep the folder names exactly: `assets`, `css`, `js`, `tools`.
@@ -10,18 +10,19 @@ If anything is missing or from an older upload, the site **names the exact file 
 
 Local: `python3 -m http.server 8000` → http://localhost:8000. Tests: `npm test` (no dependencies; checks record counts, serials, district order, PIN/coordinate formats, and distance labels).
 
-## What the 100 records are (and are not)
-* **Structure is from your passport photos**: 30 districts in index order, the serial numbers (1–100) read from the passport map, and each district's first page from the index. Cross-check built into `npm test`: the index page gaps equal exactly 2 pages × destinations in every district.
-* **Destination names, post offices, PINs and coordinates are NOT pre-filled.** None could be verified, so they show “Pending verification” / “Not available”. Nothing is invented.
-* **Passport page numbers**: only the district's first page is known. Each record shows an *inferred* page (“≈ p.N”, 2 pages per destination) clearly marked; enter the real page to replace it.
-* **Candidate list**: 106 names from the unofficial community site philatelypassport.in are included as an optional *picker* in each record's editor. They are **not matched to your serial numbers** (that site's per-district counts differ from your passport) and must be checked against your passport page and official sources.
+## What the 100 records are
+* **Source:** your scanned passport `Philately.pdf`. All 100 pages were read (OCR plus every PLACE/DOI line read by eye) into `data/post-offices.json` — the editable master file — and `js/post-offices.js` (generated: `node tools/build-js.js`).
+* **From the passport:** serial, post office name, office type (HO/SO/BO as printed), PIN, **DOI = Date of issue (as printed)**, theme (printed as “Classification”), district, passport pages (district start + 2 per destination, verified on PDF pages 1, 57, 63).
+* **NOT in the passport, so “Not verified”:** taluk, parent office, delivery status, division, region, circle, address, coordinates.
+* The original passport values are kept in each record (`pdf`) and shown beside the current values, so edits are visible.
+* One conflict inside the passport is flagged: #9 Nandgad (PLACE line 591115 vs stamp 591120). Four PINs are shared by several offices. See `VERIFICATION_REPORT.md`.
+
+## Your tracking data
+Not visited / Planned / Visited, PPC collected, visit date and notes live in the same records (no second tracking system) and are saved in this browser. Serial 63 (Mysuru HO, pp.125–126) starts as visited with PPC collected; everything else starts Not visited. Expenses can be linked to a post office from its page. Earlier local data is migrated safely (blogs, collection, expenses kept).
 
 ## Verification rules (computed, never typed)
-* **Pending** – no destination name.
-* **Partially verified** – a name exists but something is missing.
-* **Fully verified** – destination, designated post office, 6-digit PIN, *confirmed* coordinates, an official source link (`indiapost.gov.in`, `karnatakapost.gov.in` or `data.gov.in`) **and** a verification date.
-Each record keeps separate fields: destination name, designated post office, PIN, office type, passport/current district, coordinates + source + status (none / from map search / confirmed), source link, verified date.
-Authoritative sources to verify against: India Post PIN directory (https://www.indiapost.gov.in/rti/pincodelist), post-office locator (https://www.indiapost.gov.in/VAS/Pages/LocatePostOffices.aspx), Karnataka Postal Circle (https://karnatakapost.gov.in/).
+* **Pending** – no name. **Partially verified** – values from the passport, not yet checked. **Verified** – the key fields (name, PIN, office type, district) ticked as confirmed **and** an official source link (`indiapost.gov.in`, `karnatakapost.gov.in`, `data.gov.in`) **and** a verification date.
+* Official sources: India Post PIN directory (https://www.indiapost.gov.in/rti/pincodelist), post-office locator (https://www.indiapost.gov.in/VAS/Pages/LocatePostOffices.aspx), Karnataka Postal Circle (https://karnatakapost.gov.in/).
 
 ## Districts
 The directory keeps the passport's 30 districts in order. Karnataka officially has 31 districts; **Bengaluru Rural is not in the passport index**. “Ramanagara” was renamed **Bengaluru South** (notified 23 May 2025) and the passport still prints the old name; “Yadagiri” = official Yadgir. Each record stores both the passport district and the current official district.
@@ -40,10 +41,10 @@ Add coordinates: open a record → *Find coordinates on OpenStreetMap* → check
 Everything you enter lives in this browser's localStorage (single device, not synced). Use *Import / export → Full backup*. CSV export of **verified records only** and of all 100; CSV/JSON import updates records by serial. Third parties contacted: cdnjs (GSAP, Leaflet, marker-cluster), Google Fonts, OpenStreetMap tiles/Nominatim, OSRM (only on request).
 
 ## Files
-`index.html` shell + loader + failure diagnostics · `css/styles.css` · `js/data.js` districts, 100 skeleton records, candidates · `js/store.js` storage, verification rules, CSV · `js/geo.js` distances/labels/OSRM · `js/map.js` · `js/directory.js` checklist + explore · `js/planner.js` · `js/views.js`/`views2.js` home, destination, blogs, collection, expenses, static pages · `js/app.js` router · `tools/validate-data.js` tests · `tools/generate-share-pages.js` optional share previews · `assets/` your logo files.
+`index.html` shell + loader + failure diagnostics · `css/styles.css` · `data/post-offices.json` + `js/post-offices.js` the 100 records · `js/data.js` districts and field setup · `js/store.js` storage, verification rules, CSV · `js/geo.js` distances/labels/OSRM · `js/map.js` · `js/directory.js` checklist + explore · `js/planner.js` · `js/views.js`/`views2.js` home, destination, blogs, collection, expenses, static pages · `js/app.js` router · `tools/validate-data.js` tests · `tools/generate-share-pages.js` optional share previews · `assets/` your logo files.
 
 ## Known limitations
-* Names, post offices, PINs, coordinates and real passport pages still have to be entered/verified by you (or from the official sources above).
+* Taluk, parent office, division, region, address and coordinates still have to be verified (nothing is invented). PINs/DOIs come from the passport and are not yet checked against India Post.
 * Live GSAP animation, Leaflet map, clustering and OSRM were not exercisable in the build sandbox (no internet); the fallbacks were tested, the live paths need a check in your browser after deploying.
 * Kannada covers navigation and key headings only; have a native speaker review.
 * Public OSM tile and OSRM/Nominatim servers are for light use; switch providers if traffic grows.
