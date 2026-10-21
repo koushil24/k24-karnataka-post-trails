@@ -67,4 +67,4 @@
         else if (t.dataset.pdate) { const l = S.find('passport', t.dataset.pdate); if (l) S.upsert('passport', Object.assign({}, l, { plannedDate: t.value })); } });
     } });
 })();
-(window.K24.mods = window.K24.mods || {})['planner'] = '2026.10.13b';
+(window.K24.mods = window.K24.mods || {})['planner'] = '2026.10.20a';

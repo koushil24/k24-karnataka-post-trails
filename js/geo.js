@@ -38,6 +38,6 @@
     } finally { clearTimeout(t); }
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = G;
-  else if (root && root.K24 !== undefined || (root && 'K24' in root)) { root.K24.geo = G; (root.K24.mods = root.K24.mods || {}).geo = '2026.10.13b'; }
-  else { root.K24 = root.K24 || {}; root.K24.geo = G; (root.K24.mods = root.K24.mods || {}).geo = '2026.10.13b'; }
+  else if (root && root.K24 !== undefined || (root && 'K24' in root)) { root.K24.geo = G; (root.K24.mods = root.K24.mods || {}).geo = '2026.10.20a'; }
+  else { root.K24 = root.K24 || {}; root.K24.geo = G; (root.K24.mods = root.K24.mods || {}).geo = '2026.10.20a'; }
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -24,12 +24,11 @@
   }
 
   function popupHTML(l) {
-    const v = K.store.verification(l), vl = { verified: 'Fully verified', partial: 'Partially verified', pending: 'Pending verification' }[v];
-    const page = l.passportPage ? 'p. ' + l.passportPage : (l.pageInferred ? '≈ p. ' + l.pageInferred + ' (inferred)' : 'Not available');
-    const cs = { verified: 'Coordinates confirmed', geocoded: 'Coordinates from map search — not yet confirmed', none: '' }[l.coordStatus];
+    const v = K.store.verification(l), vl = { verified: 'Verified', partial: 'Partially verified', pending: 'Pending' }[v];
+    const cs = { verified: 'Coordinates confirmed', geocoded: 'Approximate location — not yet confirmed', none: '' }[l.coordStatus];
     return `<div class="map-pop"><strong>#${l.serial} ${esc(K.dn(l))}</strong><span class="pop-status" style="--c:${COLORS[K.store.statusOf(l)]}">${vl} · ${LABELS[K.store.statusOf(l)]}</span>
       <div>${esc(l.passportDistrict)}${l.currentDistrict && l.currentDistrict !== l.passportDistrict ? ' <span class="muted">(now ' + esc(l.currentDistrict) + ')</span>' : ''}</div>
-      <div>Post office: ${l.postOffice ? esc(l.postOffice) : '<span class="muted">Not available</span>'}</div><div>PIN: ${l.pin ? esc(l.pin) : '<span class="muted">Pending verification</span>'} · Passport ${esc(page)}</div>
+      <div>${esc(K.typeLabel(l))} · PIN ${esc(l.pin)} · Passport p.${l.passportPage || '—'}</div>
       ${cs ? `<div class="muted">${cs}</div>` : ''}
       <div class="pop-links"><a href="#/destination/${encodeURIComponent(l.id)}">Details</a><a target="_blank" rel="noopener noreferrer" href="${K.geo.googleMaps(l)}">Google Maps</a><a target="_blank" rel="noopener noreferrer" href="${K.geo.osm(l)}">OpenStreetMap</a></div></div>`;
   }
@@ -96,4 +95,4 @@
   }
   K.map = { mount, destroy, COLORS, LABELS };
 })();
-(window.K24.mods = window.K24.mods || {})['map'] = '2026.10.13b';
+(window.K24.mods = window.K24.mods || {})['map'] = '2026.10.20a';

@@ -21,6 +21,8 @@
 
   K.CATEGORIES = ['Heritage', 'Temple', 'Nature', 'Wildlife', 'Coast', 'Hill Station', 'Travel'];
   K.POST_OFFICE_TYPES = ['Head Post Office', 'Sub Post Office', 'Branch Post Office', 'General Post Office (GPO)', 'Other'];
+  K.VERIFY_FIELDS = [['name', 'Name'], ['pin', 'PIN code'], ['officeType', 'Office type (HO/SO/BO)'], ['district', 'District'], ['taluk', 'Taluk'], ['parentOffice', 'Parent office'], ['division', 'Postal division'], ['region', 'Postal region'], ['address', 'Address'], ['coordinates', 'Coordinates'], ['doi', 'Date of issue (DOI)']];
+  K.VERIFY_REQUIRED = ['name', 'pin', 'officeType', 'district'];
   K.OFFICIAL_HOSTS = ['indiapost.gov.in', 'karnatakapost.gov.in', 'data.gov.in'];
 
   /* The 30 districts exactly as in the passport INDEX (order, spelling, first page) and the serial numbers read from the passport map.
@@ -63,127 +65,19 @@
     26: 'Serial range 79–94 was read from a crowded part of the passport map. It matches the index (32 pages from p.157 to p.189 = 16 destinations × 2 pages).',
     30: 'The passport index prints “Yadagiri”; the official district name is Yadgir.'
   };
-  const pad = (n) => String(n).padStart(3, '0');
-  K.PASSPORT = [];
-  K.DISTRICTS.forEach((d) => { for (let n = d.first; n <= d.last; n++) K.PASSPORT.push({
-    id: 'd' + pad(n), serial: n, districtOrder: d.order, passportDistrict: d.name, currentDistrict: d.official, district: d.name,
-    name: '', attraction: '', category: 'Heritage', postOffice: '', postOfficeType: '', pin: '', address: '', source: '', verifiedDate: '',
-    indexPage: d.page, passportPage: null, pageInferred: d.page + 2 * (n - d.first),
-    lat: null, lng: null, coordSource: '', coordStatus: 'none', coordsVerified: false, nameSource: '',
-    visitDate: '', plannedDate: '', planned: true, visited: false, cancellationCollected: false, blogPublished: false,
-    notes: '', history: '', route: '', transport: '', nearby: '', photos: [], blogUrl: '', demo: false }); });
-
-  /* UNOFFICIAL candidate names (community site philatelypassport.in, 106 sites). NOT matched to passport serials and NOT verified.
-     Use only as a picker while you hold the passport; district labels there differ from the passport's. [slug, name, community district, post office, category, needsVerification] */
-  K.CANDIDATE_SOURCE = 'https://www.philatelypassport.in/sites/';
-  K.CANDIDATES = [
-    ["aihole-heritage-complex", "Aihole Heritage Complex", "Bagalkot", "Aihole Post Office", "Heritage"],
-    ["amritapura-amriteshwara-temple", "Amritapura Amriteshwara Temple", "Chikkamagaluru", "Amritapura Post Office", "Temple"],
-    ["ashoka-pillar", "Ashoka Pillar", "Bengaluru Urban", "Jayanagar Post Office", "Heritage"],
-    ["baba-budangiri-hills", "Baba Budangiri Hills", "Chikkamagaluru", "Baba Budangiri Post Office", "Hill Station"],
-    ["badami-cave-temples", "Badami Cave Temples", "Bagalkot", "Badami Post Office", "Heritage"],
-    ["bahmani-tombs", "Bahmani Tombs", "Bidar", "Ashtur Post Office", "Heritage"],
-    ["banashankari-amma-temple", "Banashankari Amma Temple", "Bagalkot", "Banashankari Post Office", "Temple"],
-    ["bandipur-tiger-reserve", "Bandipur Tiger Reserve", "Chamarajanagar", "Bandipur Post Office", "Wildlife"],
-    ["bannerghatta-national-park", "Bannerghatta National Park Butterfly Sanctuary", "Bengaluru Urban", "Bannerghatta Post Office", "Wildlife"],
-    ["barah-kaman-ruins", "Barah Kaman Ruins", "Vijayapura", "Vijayapura Post Office", "Heritage"],
-    ["beaulieu-heritage-mansion", "Beaulieu Heritage Mansion", "Bengaluru Urban", "Ambedkar Veedhi Post Office", "Heritage", true],
-    ["belagavi-fort", "Belagavi Fort", "Belagavi", "Belagavi Head Post Office", "Heritage"],
-    ["belur-chennakeshava-temple", "Belur Chennakeshava Temple", "Hassan", "Belur Post Office", "Temple"],
-    ["bhoga-nandeeshwara-temple", "Bhoga Nandeeshwara Temple", "Chikkaballapur", "Nandi Post Office", "Temple"],
-    ["bidar-fort", "Bidar Fort", "Bidar", "Bidar Head Post Office", "Heritage"],
-    ["br-hills-wildlife-sanctuary", "BR Hills Wildlife Sanctuary", "Chamarajanagar", "BR Hills Post Office", "Wildlife"],
-    ["brindavan-gardens-krs-dam", "Brindavan Gardens & KRS Dam", "Mandya", "KRS Dam Post Office", "Heritage"],
-    ["chamarajeshwara-temple", "Chamarajeshwara Temple", "Chamarajanagar", "Chamarajanagar Post Office", "Temple"],
-    ["chamundi-hills-nandi-monolith", "Chamundi Hills & Nandi Monolith", "Mysuru", "Chamundi Hill Post Office", "Hill Station"],
-    ["channapatna-wooden-toys-craft-site", "Channapatna Wooden Toys Craft Site", "Ramanagara", "Channapatna Post Office", "Heritage"],
-    ["chitradurga-fort-seven-circles", "Chitradurga Fort Seven-Circles", "Chitradurga", "Chitradurga Post Office", "Heritage"],
-    ["devanahalli-fort", "Devanahalli Fort", "Bengaluru Rural", "Devanahalli Post Office", "Heritage"],
-    ["dharwad-pedha-culinary-heritage-location", "Dharwad Pedha Culinary Heritage Location", "Dharwad", "Dharwad Head Post Office", "Heritage"],
-    ["gadag-trikuteshwara-temple", "Gadag Trikuteshwara Temple", "Gadag", "Gadag Post Office", "Temple"],
-    ["gaganachukki-barachukki-twin-falls", "Gaganachukki & Barachukki Twin Falls", "Mandya", "Shivanasamudra Post Office", "Hill Station"],
-    ["gokak-falls", "Gokak Falls", "Belagavi", "Gokak Post Office", "Hill Station"],
-    ["gokarna-mahabaleshwar-temple", "Gokarna Mahabaleshwar Temple", "Uttara Kannada", "Gokarna Post Office", "Temple"],
-    ["gol-gumbaz-whispering-gallery", "Gol Gumbaz Whispering Gallery", "Vijayapura", "Vijayapura Post Office", "Heritage"],
-    ["gulbarga-fort-jama-masjid", "Gulbarga Fort & Jama Masjid", "Kalaburagi", "Gulbarga Post Office", "Heritage"],
-    ["gurudwara-nanak-jhira-sahib", "Gurudwara Nanak Jhira Sahib", "Bidar", "Bidar Post Office", "Temple"],
-    ["halebidu-hoysaleswara-temple", "Halebidu Hoysaleswara Temple", "Hassan", "Halebidu Post Office", "Temple"],
-    ["hampi-stone-chariot", "Hampi Stone Chariot", "Vijayanagara", "Hampi Post Office", "Heritage"],
-    ["harihareshwara-temple", "Harihareshwara Temple", "Davanagere", "Harihar Post Office", "Temple"],
-    ["ibrahim-rauza-tomb", "Ibrahim Rauza Tomb", "Vijayapura", "Vijayapura Post Office", "Heritage"],
-    ["ikkeri-aghoreshwara-temple", "Ikkeri Aghoreshwara Temple", "Shivamogga", "Ikkeri Post Office", "Temple"],
-    ["indian-institute-of-science-iisc", "Indian Institute of Science - IISc", "Bengaluru Urban", "IISc Post Office", "Heritage"],
-    ["isro-headquarters-landmark", "ISRO Headquarters Landmark", "Bengaluru Urban", "ISRO Post Office", "Heritage"],
-    ["jog-falls", "Jog Falls", "Shivamogga", "Jog Falls Post Office", "Nature"],
-    ["kaiwara-heritage-site", "Kaiwara Heritage Site", "Chikkaballapur", "Kaiwara Post Office", "Temple"],
-    ["kamal-basadi-jain-temple", "Kamal Basadi Jain Temple", "Belagavi", "Belagavi Post Office", "Temple"],
-    ["kanakagiri-kanakachalapathi-temple", "Kanakagiri Kanakachalapathi Temple", "Koppal", "Kanakagiri Post Office", "Temple"],
-    ["karkala-gommateshwara-statue", "Karkala Gommateshwara Statue", "Udupi", "Karkala Post Office", "Temple"],
-    ["karnatak-university-landmark", "Karnatak University Landmark", "Dharwad", "Dharwad Post Office", "Heritage"],
-    ["karwar-rabindranath-tagore-beach", "Karwar Rabindranath Tagore Beach", "Uttara Kannada", "Karwar Post Office", "Coast"],
-    ["keladi-rameshwara-temple", "Keladi Rameshwara Temple", "Shivamogga", "Keladi Post Office", "Temple"],
-    ["kemmangundi-hill-station", "Kemmangundi Hill Station", "Chikkamagaluru", "Kemmangundi Post Office", "Hill Station"],
-    ["kempegowda-tower", "Kempegowda Tower", "Bengaluru Urban", "Basavanagudi Post Office", "Heritage"],
-    ["khwaja-bande-nawaz-dargah", "Khwaja Bande Nawaz Dargah", "Kalaburagi", "Kalaburagi Post Office", "Temple"],
-    ["kittur-rani-channamma-fort", "Kittur Rani Channamma Fort", "Belagavi", "Kittur Post Office", "Heritage"],
-    ["kolar-amma-temple", "Kolar Amma Temple", "Kolar", "Kolar Post Office", "Temple"],
-    ["kollur-mookambika-temple", "Kollur Mookambika Temple", "Udupi", "Kollur Post Office", "Temple"],
-    ["koppal-fort", "Koppal Fort", "Koppal", "Koppal Post Office", "Heritage"],
-    ["kotilingeshwara-temple", "Kotilingeshwara Temple", "Kolar", "Kamasandra Post Office", "Temple"],
-    ["kudalasangama-temple", "Kudalasangama Temple", "Bagalkot", "Kudalasangama Post Office", "Temple"],
-    ["lakkundi-temple-complex", "Lakkundi Temple Complex", "Gadag", "Lakkundi Post Office", "Temple"],
-    ["lalbagh-botanical-garden-watch-tower", "Lalbagh Botanical Garden Watch Tower", "Bengaluru Urban", "Lalbagh Post Office", "Heritage"],
-    ["lalitha-mahal-palace", "Lalitha Mahal Palace", "Mysuru", "Mysuru Post Office", "Heritage"],
-    ["lotus-mahal", "Lotus Mahal", "Vijayanagara", "Hampi Post Office", "Heritage"],
-    ["madhugiri-monolithic-fort", "Madhugiri Monolithic Fort", "Tumakuru", "Madhugiri Post Office", "Heritage"],
-    ["madikeri-fort", "Madikeri Fort", "Kodagu", "Madikeri Post Office", "Heritage"],
-    ["mahakuta-temples", "Mahakuta Temples", "Bagalkot", "Mahakuta Post Office", "Temple"],
-    ["mahmud-gawan-madrasa", "Mahmud Gawan Madrasa", "Bidar", "Bidar Post Office", "Heritage"],
-    ["male-mahadeshwara-hills", "Male Mahadeshwara Hills", "Chamarajanagar", "MM Hills Post Office", "Temple"],
-    ["malpe-st-marys-island", "Malpe St. Mary's Island", "Udupi", "Malpe Post Office", "Coast"],
-    ["malyavanta-raghunatha-temple", "Malyavanta Raghunatha Temple", "Vijayanagara", "Kamalapura Post Office", "Temple"],
-    ["mangaladevi-temple", "Mangaladevi Temple", "Dakshina Kannada", "Mangaluru Post Office", "Temple"],
-    ["melukote-cheluvanarayana-swamy-temple", "Melukote Cheluvanarayana Swamy Temple", "Mandya", "Melukote Post Office", "Temple"],
-    ["moodabidri-thousand-pillar-jain-temple", "Moodabidri Thousand Pillar Jain Temple", "Dakshina Kannada", "Moodabidri Post Office", "Temple"],
-    ["mudgal-fort", "Mudgal Fort", "Raichur", "Mudgal Post Office", "Heritage"],
-    ["mudhol-hound-heritage-site", "Mudhol Hound Heritage Site", "Bagalkot", "Mudhol Post Office", "Heritage"],
-    ["murudeshwar-shiva-statue", "Murudeshwar Shiva Statue", "Uttara Kannada", "Murudeshwar Post Office", "Coast"],
-    ["murugha-matha-heritage-site", "Murugha Matha Heritage site", "Chitradurga", "Chitradurga Post Office", "Heritage"],
-    ["mysuru-palace", "Mysuru Amba Vilas Palace", "Mysuru", "Mysuru Head Post Office", "Heritage"],
-    ["namdroling-monastery-golden-temple", "Namdroling Monastery Golden Temple", "Kodagu", "Bylakuppe Post Office", "Temple"],
-    ["nandi-hills-historical-site", "Nandi Hills Historical Site", "Chikkaballapur", "Nandi Hills Post Office", "Hill Station"],
-    ["nanjangud-srikanteshwara-temple", "Nanjangud Srikanteshwara Temple", "Mysuru", "Nanjangud Post Office", "Temple"],
-    ["pant-balekundri-heritage-site", "Pant Balekundri Heritage Site", "Belagavi", "Balekundri Post Office", "Heritage"],
-    ["pattadakal-temples", "Pattadakal Temples", "Bagalkot", "Pattadakal Post Office", "Heritage"],
-    ["raichur-fort", "Raichur Fort", "Raichur", "Raichur Post Office", "Heritage"],
-    ["rajas-seat", "Raja's Seat", "Kodagu", "Madikeri Post Office", "Hill Station"],
-    ["ramanagara-sholay-hills", "Ramanagara Sholay Hills", "Ramanagara", "Ramanagara Post Office", "Hill Station"],
-    ["ranganathaswamy-temple", "Ranganathaswamy Temple", "Mandya", "Srirangapatna Post Office", "Temple"],
-    ["sandesh-museum-of-communication", "Sandesh Museum of Communication", "Bengaluru Urban", "Museum Road Post Office", "Heritage"],
-    ["santi-bastwad-landmark", "Santi Bastwad Landmark", "Davanagere", "Davanagere Post Office", "Heritage", true],
-    ["shettihalli-rosary-church-submerged-ruins", "Shettihalli Rosary Church Submerged Ruins", "Hassan", "Shettihalli Post Office", "Heritage"],
-    ["shivappa-nayaka-palace", "Shivappa Nayaka Palace", "Shivamogga", "Shivamogga Post Office", "Heritage"],
-    ["shravanabelagola-monolithic-gommateshwara-statue", "Shravanabelagola Monolithic Gommateshwara Statue", "Hassan", "Shravanabelagola Post Office", "Temple"],
-    ["siddaganga-matha-landmark", "Siddaganga Matha Landmark", "Tumakuru", "Tumakuru Post Office", "Heritage"],
-    ["siddheshwara-temple", "Siddheshwara Temple", "Haveri", "Haveri Post Office", "Temple"],
-    ["sogal-someshwara-temple", "Sogal Someshwara Temple", "Belagavi", "Sogal Post Office", "Temple"],
-    ["somnathpur-keshava-temple", "Somnathpur Keshava Temple", "Mysuru", "Somnathpur Post Office", "Temple"],
-    ["sringeri-sharada-peetham", "Sringeri Sharada Peetham", "Chikkamagaluru", "Sringeri Post Office", "Temple"],
-    ["srirangapatna-daria-daulat-bagh", "Srirangapatna Daria Daulat Bagh", "Mandya", "Srirangapatna Post Office", "Heritage"],
-    ["st-aloysius-chapel-heritage-paintings", "St. Aloysius Chapel Heritage Paintings", "Dakshina Kannada", "Mangaluru Head Post Office", "Heritage"],
-    ["st-philomenas-cathedral", "St. Philomena's Cathedral", "Mysuru", "Mysuru Post Office", "Heritage"],
-    ["talakaveri-kaveri-river-origin", "Talakaveri Kaveri River Origin", "Kodagu", "Talakaveri Post Office", "Temple"],
-    ["tungabhadra-dam", "Tungabhadra Dam", "Vijayanagara", "Hosapete Post Office", "Heritage"],
-    ["udupi-sri-krishna-mutt", "Udupi Sri Krishna Mutt", "Udupi", "Udupi Post Office", "Temple"],
-    ["ugra-narasimha-statue", "Ugra Narasimha Statue", "Vijayanagara", "Hampi Post Office", "Heritage"],
-    ["vidhana-soudha", "Vidhana Soudha", "Bengaluru Urban", "Bengaluru GPO", "Heritage"],
-    ["vidyashankara-temple", "Vidyashankara Temple", "Chikkamagaluru", "Sringeri Post Office", "Temple"],
-    ["virupaksha-temple", "Virupaksha Temple", "Vijayanagara", "Hampi Post Office", "Temple"],
-    ["virupakshapura-ancient-inscription-stones", "Virupakshapura Ancient Inscription Stones", "Bengaluru Urban", "Kodigehalli Post Office", "Heritage", true],
-    ["vittala-temple-complex", "Vittala Temple Complex", "Vijayanagara", "Hampi Post Office", "Heritage"],
-    ["yadagiri-fort", "Yadagiri Fort", "Yadgir", "Yadagiri Post Office", "Heritage"],
-    ["yana-caves-black-limestone-formations", "Yana Caves Black Limestone Formations", "Uttara Kannada", "Kodambale Branch Post Office", "Heritage"]
-  ];
+  /* The 100 records come from the scanned passport (data/post-offices.json → js/post-offices.js). Fields the passport does not contain
+     (taluk, parent office, division, region, address, coordinates…) start EMPTY and show "Not verified". */
+  const dist = (o) => K.DISTRICTS[o - 1];
+  K.PASSPORT = (K.POST_OFFICES || []).map((p) => ({
+    id: p.id, serial: p.serial, districtOrder: p.districtOrder, passportDistrict: p.passportDistrict, currentDistrict: dist(p.districtOrder).official, district: p.passportDistrict,
+    name: p.name, postOffice: p.name, officeCode: p.officeCode, postOfficeType: p.postOfficeType, pin: p.pin, doi: p.doi, theme: p.theme,
+    taluk: '', parentOffice: '', division: '', region: '', circle: '', deliveryStatus: '', address: '', source: '', verifiedDate: '', verifiedFields: [], edited: [],
+    attraction: '', category: 'Heritage', indexPage: dist(p.districtOrder).page, passportPage: p.passportPage, pageInferred: p.passportPage,
+    lat: null, lng: null, coordSource: '', coordStatus: 'none', coordsVerified: false, nameSource: 'Scanned passport (Philately.pdf)',
+    visitDate: '', plannedDate: '', planned: false, visited: false, cancellationCollected: false, blogPublished: false,
+    notes: '', history: '', route: '', transport: '', nearby: '', photos: [], blogUrl: '', demo: false,
+    pdf: { placeLine: p.placeLine, name: p.name, officeCode: p.officeCode, pin: p.pin, pinOnStamp: p.pinOnStamp, doiPrinted: p.doiPrinted, theme: p.theme, districtPrinted: p.districtPrinted, pdfPage: p.pdfPage, text: p.passportText, textBasis: p.passportTextBasis },
+    dataNotes: p.notes || [] }));
 
   const body = (place) => [
     'DEMO DRAFT — replace this with your own travel story for ' + place + '.',
@@ -209,4 +103,4 @@
   K.TRAVEL_MODES = ['Any', 'Bus', 'Train', 'Car', 'Bike'];
   K.COLLECTION_TYPES = { cancellation: 'Cancellations', stamp: 'Stamps', cover: 'Special covers', postcard: 'Postcards' };
 })();
-(window.K24.mods = window.K24.mods || {})['data'] = '2026.10.13b';
+(window.K24.mods = window.K24.mods || {})['data'] = '2026.10.20a';

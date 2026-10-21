@@ -70,7 +70,7 @@
     inp.focus();
   }
 
-  (K.mods = K.mods || {}).app = '2026.10.13b';
+  (K.mods = K.mods || {}).app = '2026.10.20a';
   function boot() {
     const bad = window.__k24Problems ? window.__k24Problems() : [];
     if (bad.length) { window.__k24Fatal([]); return; }

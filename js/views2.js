@@ -75,13 +75,13 @@
 
   /* ================= EXPENSES ================= */
   const X = { tab: 'list' };
-  K.editExpense = (id, done) => {
-    const cur = id ? S.find('expenses', id) : null;
-    K.form({ title: cur ? 'Edit expense' : 'Add expense', values: cur || { date: new Date().toISOString().slice(0, 10), category: 'Transport' }, fields: [
+  K.editExpense = (id, done, presetId) => {
+    const cur = id ? S.find('expenses', id) : null, opts = S.list('passport').map((l) => ({ v: l.id, l: '#' + l.serial + ' ' + K.dn(l) }));
+    K.form({ title: cur ? 'Edit expense' : 'Add expense', values: cur ? Object.assign({}, cur, { destination: cur.placeId || '' }) : { date: new Date().toISOString().slice(0, 10), category: 'Transport', destination: presetId || '' }, fields: [
       { name: 'date', label: 'Date', type: 'date', required: true }, { name: 'amount', label: 'Amount (₹)', type: 'number', required: true, min: 0, step: '0.01', inputmode: 'decimal' },
-      { name: 'destination', label: 'Destination', type: 'select', options: S.list('passport').filter((l) => l.name).map((l) => l.name), help: 'Leave empty for general trip costs.' }, { name: 'category', label: 'Category', type: 'select', required: true, options: K.EXPENSE_CATEGORIES },
+      { name: 'destination', label: 'Post office', type: 'select', options: opts, help: 'Leave empty for general trip costs.' }, { name: 'category', label: 'Category', type: 'select', required: true, options: K.EXPENSE_CATEGORIES },
       { name: 'description', label: 'Description', required: true, full: true, max: 200 }, { name: 'notes', label: 'Notes', type: 'textarea', rows: 2, full: true, max: 500 }],
-      onSubmit(d) { d.id = cur ? cur.id : S.uid(); d.demo = cur ? cur.demo : false; S.upsert('expenses', d); K.toast(cur ? 'Expense updated.' : 'Expense added.'); if (done) done(); } });
+      onSubmit(d) { const rec = S.find('passport', d.destination); d.placeId = rec ? rec.id : ''; d.destination = rec ? K.dn(rec) : (cur && !cur.placeId ? cur.destination : ''); d.id = cur ? cur.id : S.uid(); d.demo = cur ? cur.demo : false; S.upsert('expenses', d); K.toast(cur ? 'Expense updated.' : 'Expense added.'); if (done) done(); } });
   };
   const groupSum = (list, key) => { const m = {}; list.forEach((e) => { const k = key(e); m[k] = (m[k] || 0) + e.amount; }); return m; };
   const bars = (m, labelFn, sortFn) => { const keys = Object.keys(m).sort(sortFn || ((a, b) => m[b] - m[a])), max = Math.max(1, ...Object.values(m)); return keys.length ? keys.map((k) => `<div class="hbar"><span>${esc(labelFn ? labelFn(k) : k)}</span><div class="bar"><i data-progress="${Math.round((m[k] / max) * 100)}"></i></div><b>${inr(m[k])}</b></div>`).join('') : '<p class="muted">Nothing to summarise yet.</p>'; };
@@ -131,4 +131,4 @@
   V.notfound = (o) => ({ title: 'Page not found — K_24 Karnataka Post Trails', desc: 'This page could not be found.', status: 404,
     html: `<div class="wrap nf"><img src="${K.postmarkUri('Lost in transit', '', 'Return to sender')}" alt="" width="220" height="220"><div><h1>${o && o.what ? 'That ' + esc(o.what) + ' isn’t in your list' : 'This letter went astray'}</h1><p class="lede">The address you followed doesn’t match a page here${o && o.what ? ' — it may have been deleted or renamed' : ''}.</p><p class="btn-row"><a class="btn btn-primary" href="#/">Back to home</a><a class="btn btn-ghost" href="#/passport">Open passport</a></p></div></div>` });
 })();
-(window.K24.mods = window.K24.mods || {})['views2'] = '2026.10.13b';
+(window.K24.mods = window.K24.mods || {})['views2'] = '2026.10.20a';
