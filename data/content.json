@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "updated": "2026-10-22T14:11:50.332Z",
+ "updated": "2026-10-22T14:33:36.108Z",
  "places": {
   "d063": {
    "visited": true,
@@ -13,5 +13,16 @@
    }
   }
  },
- "stories": []
+ "stories": [
+  {
+   "id": "my-first-ppc-karnataka-philately-passpor-mvjn5llo",
+   "title": "My First PPC & Karnataka Philately Passport – Mysuru HO",
+   "date": "2026-10-11",
+   "text": "On 11 October 2026, I visited Mysuru Head Post Office (#63), marking a special milestone in my Karnataka Philately journey.\n\nThis was the day I purchased my Karnataka Philately Passport at the same post office and received my very first Pictorial Cancellation (PPC).\n\nIt was more than just a visit to a post office. It was the beginning of my journey to explore Karnataka's post offices, collect pictorial cancellations, and preserve memories of every destination through philately.\n\nI will always remember Mysuru HO as the place where my passport journey began and where I collected my first PPC.\n\nOne passport. One first PPC. Countless stories waiting to be discovered! 🇮🇳📮",
+   "placeId": "d063",
+   "photos": [
+    "photos/story-my-first-ppc-karnataka-philately-passpor-mvjn5llo-0-mvjn5llo.jpg"
+   ]
+  }
+ ]
 }
