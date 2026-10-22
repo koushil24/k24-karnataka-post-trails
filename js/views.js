@@ -1,143 +1,127 @@
-/* Views, part 1: shared components, Home, Passport tracker, Explore map, Destination details. */
+/* Pages: Home, Passport, one post office, Journey, one story. */
 (function () {
-  const K = window.K24, S = K.store, { esc, safeUrl, inr, fmtDate, $, $$ } = K;
-  const V = (K.views = K.views || {});
-  const enc = encodeURIComponent;
+  const K = window.K24, { $, $$, esc, safeUrl, fmtDate, t } = Object.assign({ t: (k) => K.t(k) }, K), enc = encodeURIComponent;
+  const V = (K.views = {}), TYPE = { HO: 'Head Office (HO)', SO: 'Sub Office (SO)', BO: 'Branch Office (BO)', GPO: 'General Post Office', MDG: 'MDG (as printed)', '': '—' };
+  const dn = (p) => p.name + (p.code ? ' ' + p.code : '');
+  const dist = (p) => K.DISTRICTS[p.d - 1];
+  const find = (id) => K.PLACES.find((p) => p.id === id);
+  K.dn = dn;
+  const pad2 = (n) => String(n).padStart(2, '0');
 
-  const ICON = {
-    pin: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
-    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/><circle cx="12" cy="12" r="10"/>',
-    stamp: '<rect x="5" y="3" width="14" height="18" rx="1.5"/><circle cx="12" cy="10" r="3"/><path d="M8 17h8"/>',
-    pen: '<path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/>',
-    search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
-    plus: '<path d="M12 5v14M5 12h14"/>',
-    edit: '<path d="M4 20l4-1 11-11-3-3L5 16z"/>',
-    trash: '<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>',
-    arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
-    left: '<path d="M19 12H5M11 6l-6 6 6 6"/>',
-    share: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>'
-  };
-  const ic = (n, cls) => `<svg class="ic ${cls || ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n] || ''}</svg>`;
-  const demoTag = (f) => (f ? '<span class="tag tag-demo" title="Illustrative content — replace with your verified information">Demo</span>' : '');
-  const chips = (l) => [K.vchip ? K.vchip(l) : '', l.visited ? '<span class="chip chip-visited">Visited</span>' : '', l.cancellationCollected ? '<span class="chip chip-cancel">Cancellation collected</span>' : '', l.blogPublished ? '<span class="chip chip-blog">Blog published</span>' : ''].join('');
-  const empty = (title, text, action) => `<div class="empty"><strong>${esc(title)}</strong><p>${esc(text)}</p>${action || ''}</div>`;
-  const pageHead = (title, sub, extra) => `<header class="page-head" data-reveal><div><h1>${esc(title)}</h1>${sub ? `<p class="lede">${esc(sub)}</p>` : ''}</div>${extra || ''}</header>`;
-  K.c = { ic, demoTag, chips, empty, pageHead, enc };
+  /* ---------- artwork (original vector, not photographs) ---------- */
+  const tiers = (cx, by, s, fill) => { let o = ''; for (let i = 0; i < 7; i++) { const w = (150 - i * 18) * s, h = 34 * s; o += `<rect x="${cx - w / 2}" y="${by - (i + 1) * h}" width="${w}" height="${h - 5 * s}" fill="${fill}"/>`; } return o + `<rect x="${cx - 90 * s}" y="${by}" width="${180 * s}" height="${60 * s}" fill="${fill}"/>`; };
+  const artFar = '<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="sa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14403a"/><stop offset=".5" stop-color="#c9784a"/><stop offset=".85" stop-color="#f1bd75"/><stop offset="1" stop-color="#f8dfa6"/></linearGradient></defs><rect width="400" height="500" fill="url(#sa)"/><circle cx="290" cy="270" r="46" fill="#fff4d2" opacity=".9"/><path d="M0 330L70 270 130 310 200 240 270 305 340 255 400 300V500H0Z" fill="#2c5b4b" opacity=".75"/></svg>';
+  const artNear = '<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="#0d2a21">' + tiers(200, 400, .8, '#0d2a21') + '<path d="M0 410C100 380 200 430 400 395V500H0Z"/></g></svg>';
+  const miniArt = (seed) => `<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="g${seed}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d6e6d9"/><stop offset="1" stop-color="#f7f1e3"/></linearGradient></defs><rect width="300" height="200" fill="url(#g${seed})"/><path d="M0 140L60 100 110 130 170 80 230 125 300 95V200H0Z" fill="#9fc2ae" opacity=".7"/><g fill="#103D2F" opacity=".85">${tiers(150, 150, .45, '#103D2F')}</g></svg>`;
 
-  function destCard(l) {
-    return `<article class="card dest-card"><a class="card-link" href="#/destination/${enc(l.id)}" aria-label="${esc(K.dn(l))} — open details">${K.thumb(l.category, l.photos && l.photos[0], K.dn(l))}
-      <div class="card-body"><div class="tags"><span class="tag">${esc(l.category)}</span></div><h3><span class="serial">#${l.serial}</span> ${esc(K.dn(l))}</h3><p class="muted">${esc(l.passportDistrict)} · PIN ${esc(l.pin)}</p><p class="small muted">${esc(l.theme)}</p><div class="chips">${chips(l)}</div></div></a></article>`;
-  }
-  function blogCard(b) {
-    const d = S.find('passport', b.destinationId);
-    return `<article class="card blog-card"><a class="card-link" href="#/blog/${enc(b.id)}">${K.thumb(b.category, b.cover, b.title)}
-      <div class="card-body"><div class="tags"><span class="tag">${esc(b.category)}</span>${demoTag(b.demo)}</div><h3>${esc(b.title)}</h3>
-      <p class="muted">${esc(b.excerpt)}</p><p class="meta">${b.date ? esc(fmtDate(b.date)) : 'Coming soon'} · ${K.readingTime(b.body)} min read${d ? ' · ' + esc(d.passportDistrict) : ''}</p></div></a></article>`;
-  }
-  function collCard(c, tools) {
-    const img = safeUrl(c.image);
-    return `<article class="card coll-card"><span class="thumb paper"><img class="art" src="${K.postmarkUri(c.location || c.title, c.date, c.type === 'cancellation' ? 'Post Trails' : K.COLLECTION_TYPES[c.type])}" alt="" loading="lazy" width="300" height="300">${img ? `<img class="real" src="${esc(img)}" alt="${esc(c.title)}" loading="lazy" width="300" height="300">` : ''}</span>
-      <div class="card-body"><div class="tags">${demoTag(c.demo)}${img ? '' : '<span class="tag">No photo yet</span>'}</div><h3>${esc(c.title)}</h3><p class="muted">${esc(c.location)}${c.date ? ' · ' + esc(fmtDate(c.date)) : ''}</p>${c.note ? `<p class="small">${esc(c.note)}</p>` : ''}
-      ${tools ? `<div class="row-actions"><button class="btn btn-ghost btn-sm" data-edit-coll="${esc(c.id)}">${ic('edit')} Edit</button><button class="btn btn-ghost btn-sm danger" data-del-coll="${esc(c.id)}">${ic('trash')} Delete</button></div>` : ''}</div></article>`;
-  }
-  K.c.destCard = destCard; K.c.blogCard = blogCard; K.c.collCard = collCard;
+  /* ---------- progress ring ---------- */
+  const ring = (done, total) => { const pct = total ? Math.round((done / total) * 100) : 0; return `<div class="ring" style="--p:${pct}" role="img" aria-label="${done} / ${total}"><svg viewBox="0 0 120 120"><circle class="rb" cx="60" cy="60" r="52"/><circle class="rf" cx="60" cy="60" r="52" pathLength="100"/></svg><div class="rt"><strong data-count="${done}">0</strong><span>/ ${total}</span></div></div>`; };
+  const countUp = (root) => $$('[data-count]', root).forEach((el) => { const to = +el.dataset.count; if (K.reduced() || !to) { el.textContent = to; return; } const t0 = performance.now(); (function tick(now) { const p = Math.min(1, (now - t0) / 1200); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1 && document.contains(el)) requestAnimationFrame(tick); })(t0); });
+  const grow = (root) => requestAnimationFrame(() => setTimeout(() => $$('.ring,.bar', root).forEach((e) => e.classList.add('go')), 60));
+
+  /* ---------- cards ---------- */
+  const pcard = (p) => { const v = K.place(p.id).visited, ph = K.place(p.id).photos.stamp;
+    return `<a class="pcard ${v ? 'is-visited' : ''}" href="#/place/${enc(p.id)}" aria-label="#${p.serial} ${esc(dn(p))} — ${esc(v ? t('visited') : t('notVisited'))}"><span class="pc-in perf"><span class="pc-no">${pad2(p.serial)}</span>
+      ${v && ph ? `<img class="pc-img" src="${esc(safeUrl(K.img(ph)))}" alt="" loading="lazy">` : `<span class="pc-art">${miniArt(p.serial)}</span>`}
+      <strong class="pc-name">${esc(dn(p))}</strong><small class="pc-meta">${esc(dist(p).name)} · ${esc(p.pin)}</small>
+      <span class="pc-state">${v ? esc(t('visited')) : esc(t('notVisited'))}</span><span class="glare" aria-hidden="true"></span></span>${v ? `<span class="seal" aria-hidden="true">${esc(t('seal'))}</span>` : ''}</a>`; };
+  const storyCard = (s) => { const c = s.photos[0]; return `<a class="scard" href="#/journey/${enc(s.id)}"><span class="s-cov">${c ? `<img src="${esc(safeUrl(K.img(c)))}" alt="" loading="lazy">` : miniArt('s' + s.id.length)}</span><span class="s-body"><small>${esc(fmtDate(s.date))}</small><strong>${esc(s.title)}</strong><span class="s-ex">${esc(s.text.slice(0, 140))}${s.text.length > 140 ? '…' : ''}</span></span><span class="glare" aria-hidden="true"></span></a>`; };
+  const sortedStories = () => K.content.stories.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
   /* ================= HOME ================= */
-  const gop = (cx, by, s, fill) => { let o = ''; for (let i = 0; i < 7; i++) { const w = (150 - i * 18) * s, h = 34 * s; o += `<rect x="${cx - w / 2}" y="${by - (i + 1) * h}" width="${w}" height="${h - 5 * s}" fill="${fill}"/>`; }
-    return o + `<rect x="${cx - 90 * s}" y="${by}" width="${180 * s}" height="${60 * s}" fill="${fill}"/><rect x="${cx - 14 * s}" y="${by + 8 * s}" width="${28 * s}" height="${52 * s}" fill="#050f0b" opacity=".55"/><path d="M${cx} ${by - 7 * 34 * s - 6 * s}v-${22 * s}" stroke="${fill}" stroke-width="${4 * s}"/>`; };
-  function heroLayers() {
-    const pillars = Array.from({ length: 9 }, (_, i) => `<rect x="${600 + i * 38}" y="700" width="16" height="110"/>`).join('');
-    return `<div class="hero-bg" aria-hidden="true">
-      <svg class="layer" data-depth=".08" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice"><defs><linearGradient id="hsk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#123a33"/><stop offset=".42" stop-color="#b9704a"/><stop offset=".74" stop-color="#f0b86e"/><stop offset="1" stop-color="#f8dfa6"/></linearGradient><radialGradient id="hsn"><stop offset="0" stop-color="#fff3c9" stop-opacity=".95"/><stop offset="1" stop-color="#fff3c9" stop-opacity="0"/></radialGradient></defs>
-        <rect width="1600" height="900" fill="url(#hsk)"/><circle cx="1130" cy="560" r="280" fill="url(#hsn)"/><circle cx="1130" cy="560" r="56" fill="#fff6dc"/><g fill="#fff" opacity=".16"><ellipse cx="380" cy="250" rx="240" ry="16"/><ellipse cx="520" cy="286" rx="170" ry="11"/><ellipse cx="980" cy="210" rx="220" ry="15"/></g></svg>
-      <svg class="layer" data-depth=".18" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice"><path d="M0 640L130 560L250 612L390 500L530 604L660 540L810 622L970 520L1130 612L1290 532L1450 600L1600 540V900H0Z" fill="#2f5e4d" opacity=".62"/><path d="M0 712L160 640L300 700L470 600L620 690L790 628L960 706L1130 636L1300 700L1460 650L1600 690V900H0Z" fill="#1d4a3b" opacity=".85"/></svg>
-      <svg class="layer" data-depth=".3" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice"><g fill="#f0b05f" opacity=".35" transform="translate(-4,-5)">${gop(1060, 700, 1.25, '#f0b05f')}</g><g fill="#0f2a21">${gop(1060, 700, 1.25, '#0f2a21')}<rect x="590" y="676" width="372" height="26"/>${pillars}<rect x="560" y="806" width="520" height="20"/></g><g fill="#0c231b"><ellipse cx="300" cy="800" rx="120" ry="52"/><ellipse cx="410" cy="822" rx="90" ry="40"/><ellipse cx="1390" cy="808" rx="110" ry="46"/></g></svg>
-      <svg class="layer" data-depth=".48" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice"><path d="M0 836C300 780 540 880 840 826S1320 800 1600 850V900H0Z" fill="#081a13"/><g stroke="#081a13" stroke-width="9" fill="none" stroke-linecap="round"><path d="M120 860Q140 700 110 560"/><path d="M110 560q-70 -30 -120 10M110 560q60 -50 130 -20M110 560q-10 -60 -70 -90M110 560q40 -70 110 -80"/></g></svg>
-    </div>`;
-  }
-  const stampSVG = (cls) => `<svg class="${cls || ''}" viewBox="0 0 160 190" role="img" aria-label="Illustrative postage stamp showing a Karnataka temple tower"><defs><linearGradient id="stg${cls ? cls.length : 0}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8dfa6"/><stop offset="1" stop-color="#e08a4b"/></linearGradient></defs>
-    <rect x="3" y="3" width="154" height="184" fill="#F7F1E3" stroke="#F7F1E3" stroke-width="6" stroke-dasharray="2 6" stroke-linecap="round"/><rect x="12" y="12" width="136" height="166" fill="#F7F1E3"/><rect x="18" y="18" width="124" height="124" fill="url(#stg${cls ? cls.length : 0})"/>
-    <g fill="#103D2F"><path d="M18 142V116l26-22 20 18 28-34 28 30v34z" opacity=".5"/>${[0, 1, 2, 3, 4].map((i) => `<rect x="${80 - (34 - i * 6) / 2}" y="${126 - (i + 1) * 15}" width="${34 - i * 6}" height="13"/>`).join('')}<rect x="60" y="126" width="40" height="16"/></g>
-    <text x="80" y="160" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="#103D2F" letter-spacing="2">KARNATAKA</text><text x="80" y="173" text-anchor="middle" font-family="Georgia,serif" font-size="7" fill="#C83742" letter-spacing="1.5">ILLUSTRATIVE</text></svg>`;
-  const cancelSVG = (txt) => `<svg class="hero-mark" viewBox="0 0 300 220" aria-hidden="true"><defs><path id="hmp" d="M110 110m-84 0a84 84 0 1 1 168 0a84 84 0 1 1 -168 0"/></defs>
-    <g fill="none" stroke="#F7F1E3" stroke-linecap="round"><circle class="draw" pathLength="1" cx="110" cy="110" r="100" stroke-width="3"/><circle class="draw d2" pathLength="1" cx="110" cy="110" r="64" stroke-width="1.5"/><path class="draw d3" pathLength="1" d="M214 78q22 -12 42 0t42 0M214 96q22 -12 42 0t42 0M214 114q22 -12 42 0t42 0" stroke-width="3"/></g>
-    <text font-family="Georgia,serif" font-size="15" letter-spacing="3.2" fill="#F7F1E3"><textPath href="#hmp" startOffset="1%">${esc(txt)} • POST TRAILS •</textPath></text><g fill="#F7F1E3"><path d="M110 80l9 13h-18zM103 93h14v28h-14z"/><text x="110" y="142" font-size="11" text-anchor="middle" font-family="Georgia,serif" letter-spacing="1">KARNATAKA</text></g></svg>`;
-  const statCard = (n, label, icon, sub) => `<div class="stat"><span class="stat-ic">${ic(icon)}</span><strong data-count="${n}">0</strong><span class="stat-l">${esc(label)}</span><small class="muted">${esc(sub || '')}</small></div>`;
-
-  function dashboard(st, withMap) {
-    const w = (n) => (st.total ? (n / st.total) * 100 : 0);
-    return `<section class="dash" data-reveal aria-labelledby="dash-h"><div class="card dash-main"><h2 id="dash-h">${esc(K.t('progress'))}</h2>
-      <p class="muted">${st.named === 0 ? 'Tracking the 100 permanent pictorial cancellations of Karnataka.' : 'Tracking the 100 permanent pictorial cancellations of Karnataka — from the scanned passport.'}</p>
-      <div class="stats" data-stagger>${statCard(st.total, 'Post offices in the passport', 'pin', '30 districts')}${statCard(st.visited, 'Visited', 'check', 'With my own input')}${statCard(st.remaining, 'Remaining to visit', 'pen')}${statCard(st.cancel, 'Cancellations collected', 'stamp')}</div>
-      <div class="bar-wrap"><div class="bar-label"><span>Data verification</span><strong>${st.verified} verified · ${st.partial} partial · ${st.pending} pending</strong></div><div class="seg" role="img" aria-label="${st.verified} verified, ${st.partial} partial, ${st.pending} pending"><i class="s-v" style="width:${w(st.verified)}%"></i><i class="s-p" style="width:${w(st.partial)}%"></i></div></div>
-      <div class="bar-wrap"><div class="bar-label"><span>Visited</span><strong>${st.pct}%</strong></div><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${st.pct}" aria-label="Passport visited"><i data-progress="${st.pct}"></i></div></div></div>
-      ${withMap ? `<div class="card dash-map"><h2>Explore Karnataka</h2><p class="muted">${st.withCoords} of ${st.total} destinations have coordinates.</p><div class="mini-map" id="mini-map"></div><div class="legend" aria-label="Map legend">${['planned', 'visited', 'cancel', 'blog'].map((k) => `<span><i style="background:${K.map.COLORS[k]}"></i>${K.map.LABELS[k]}</span>`).join('')}</div><a class="btn btn-primary" href="#/explore">${esc(K.t('viewMap'))} ${ic('arrow')}</a></div>` : ''}</section>`;
-  }
-
   V.home = () => {
-    const st = S.stats(), blogs = S.list('blogs').slice(0, 4), feat = [63, 97, 2, 84, 49, 99].map((n) => S.list('passport').find((l) => l.serial === n)).filter(Boolean), coll = S.list('collection').slice(0, 4), pass = S.list('passport');
-    const words = K.t('tagline').split(' ').map((w) => `<span class="w"><span class="word">${esc(w)}</span></span>`).join(' ');
-    const stops = feat.slice(0, 5).map((p) => p.name.replace(/\s*\(.*\)/, ''));
-    const pts = [[60, 230], [200, 110], [350, 200], [520, 90], [650, 150]];
-    return { title: 'K_24 Karnataka Post Trails — Every Postmark Tells a Story', desc: 'A personal blog documenting Karnataka Philately Passport journeys, pictorial cancellations, post offices and heritage destinations.',
-      html: `<section class="hero" aria-labelledby="hero-title">${heroLayers()}<div class="hero-shade" aria-hidden="true"></div>
-        <div class="hero-inner"><div class="hero-copy"><div class="hero-logo"><img src="assets/logo-emblem.png" alt="" width="64" height="64"><span><strong>K_24</strong> Karnataka Post Trails</span></div>
-          <h1 id="hero-title">${words}</h1><p class="hero-sub">${esc(K.t('mission'))}</p><p class="hero-cta"><a class="btn btn-gold" href="#/passport">${esc(K.t('start'))} ${ic('arrow')}</a></p></div>
-          <div class="hero-art" aria-hidden="false"><div class="hero-stamp">${stampSVG('stamp-art')}</div>${cancelSVG('KARNATAKA')}</div></div></section>
-        <div class="wrap">${dashboard(st, true)}
-        <section class="block" data-reveal><div class="block-head"><h2>${esc(K.t('latest'))}</h2><a class="more" href="#/blogs">${esc(K.t('viewAll'))} ${ic('arrow')}</a></div><div class="grid g4" data-stagger>${blogs.map(blogCard).join('')}</div></section>
-        <section class="block" data-reveal><div class="block-head"><h2>${esc(K.t('featured'))}</h2><a class="more" href="#/explore">${esc(K.t('viewAll'))} ${ic('arrow')}</a></div>${feat.length ? `<div class="grid g3" data-stagger>${feat.map(destCard).join('')}</div>` : empty('Destinations will appear here', 'Open the passport checklist and add the first destination names from your passport.', '<a class="btn btn-primary" href="#/passport">Open passport checklist</a>')}</section>
-        <section class="block" data-reveal><div class="block-head"><h2>${esc(K.t('stamps'))}</h2><a class="more" href="#/collection">${esc(K.t('viewAll'))} ${ic('arrow')}</a></div><div class="grid g4" data-stagger>${coll.map((c) => collCard(c)).join('')}</div></section></div>
-        <section class="next" aria-labelledby="next-h"><div class="wrap next-grid"><div data-reveal><h2 id="next-h">${esc(K.t('next'))}</h2><p>Let’s explore another destination in Karnataka.</p><p class="btn-row"><a class="btn btn-gold" href="#/passport">View passport locations ${ic('arrow')}</a><a class="btn btn-outline-light" href="#/planner">Plan a trip</a></p></div>
-          <div class="route-card" data-reveal><svg viewBox="0 0 710 300" role="img" aria-label="Illustrative dotted route across ${stops.map(esc).join(', ')}"><defs><mask id="rmask"><path class="route-path" pathLength="1" d="M60 230Q130 100 200 110T350 200T520 90T650 150" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/></mask></defs><path d="M60 230Q130 100 200 110T350 200T520 90T650 150" mask="url(#rmask)" fill="none" stroke="#D5AC49" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 11"/>
-          ${pts.map((p, i) => `<g class="stop" style="--i:${i}"><circle cx="${p[0]}" cy="${p[1]}" r="7" fill="#C83742" stroke="#F7F1E3" stroke-width="3"/><text x="${p[0]}" y="${p[1] + (i % 2 ? -16 : 28)}" text-anchor="middle" fill="#F7F1E3" font-size="14" font-family="Inter,sans-serif">${esc(stops[i] || '')}</text></g>`).join('')}</svg><small>Illustrative route — not a real itinerary or distance.</small><div class="settle-stamp">${stampSVG('stamp-art')}</div></div></div></section>
-        <section class="wrap block invite" data-reveal><div class="card invite-card"><div><h2>Collecting too? Say hello.</h2><p>Swap tips on post offices, cancellations and routes. There’s no mailing list yet — the contact page opens your e-mail app.</p></div><a class="btn btn-primary" href="#/contact">Get in touch</a></div></section>`,
-      after(root) {
-        const el = $('#mini-map', root); if (el) K.map.mount(el, pass, { interactive: false });
-      } };
+    const done = K.visitedCount(), total = K.PLACES.length, stories = sortedStories().slice(0, 3);
+    const latest = K.PLACES.filter((p) => K.place(p.id).visited).sort((a, b) => (K.place(b.id).visitDate || '').localeCompare(K.place(a.id).visitDate || '')).slice(0, 3);
+    return { title: 'K_24 Karnataka Post Trails — ' + K.t('tagline'), html: `
+      <section class="hero3d"><div class="aurora" aria-hidden="true"></div><div class="wrap hero-grid">
+        <div class="hero-copy"><p class="eyebrow">${esc(t('eyebrow'))}</p><h1>${esc(t('tagline'))}</h1><p class="lede">${esc(t('lede'))}</p>
+          <div class="btn-row"><a class="btn gold" href="#/passport">${esc(t('openPassport'))}</a><a class="btn ghost-l" href="#/journey">${esc(t('readJourney'))}</a></div>
+          <div class="hero-stat">${ring(done, total)}<p><strong>${done}</strong> ${esc(t('visitedOf'))}<br><small>${esc(t('progressLabel'))}</small></p></div></div>
+        <div class="stage" aria-hidden="true"><div class="rig"><div class="stamp3d">
+            <div class="plate back2"></div><div class="plate back1"></div><div class="plate front perf"></div>
+            <div class="layer l-far">${artFar}</div><div class="layer l-near">${artNear}</div>
+            <div class="layer l-text"><b>KARNATAKA</b><i>POST TRAILS</i></div>
+            <img class="layer l-emblem" src="assets/logo-emblem.png" alt="" width="120" height="120">
+            <svg class="layer l-ring" viewBox="0 0 200 200"><defs><path id="pm" d="M100 100m-78 0a78 78 0 1 1 156 0a78 78 0 1 1 -156 0"/></defs><g fill="none" stroke="#C83742" stroke-linecap="round"><circle class="draw" pathLength="1" cx="100" cy="100" r="92" stroke-width="3"/><circle class="draw d2" pathLength="1" cx="100" cy="100" r="66" stroke-width="1.5"/></g><text font-family="Georgia,serif" font-size="14" letter-spacing="3" fill="#C83742"><textPath href="#pm">KARNATAKA • POST TRAILS • EVERY POSTMARK •</textPath></text></svg></div>
+          <div class="fl f1"><div class="mini perf"><span>${pad2(63)}</span></div></div><div class="fl f2"><div class="mini perf"><span>${pad2(1)}</span></div></div><div class="fl f3"><div class="mini perf"><span>${pad2(100)}</span></div></div></div></div></div></section>
+      <div class="wrap block"><div class="bhead"><h2>${esc(t('latestVisits'))}</h2><a class="more" href="#/passport">${esc(t('viewAll'))} →</a></div>
+        ${latest.length ? `<div class="grid pgrid3" id="home-cards">${latest.map(pcard).join('')}</div>` : `<p class="muted">${esc(t('nothingYet'))}</p>`}</div>
+      <div class="wrap block"><div class="bhead"><h2>${esc(t('latestStories'))}</h2><a class="more" href="#/journey">${esc(t('viewAll'))} →</a></div>
+        ${stories.length ? `<div class="grid sgrid" id="home-stories">${stories.map(storeCardSafe).join('')}</div>` : `<p class="muted">${esc(t('noStories'))}</p>`}</div>
+      <div class="wrap block about"><p>${esc(t('about'))}</p></div>`,
+      after(root) { countUp(root); grow(root); heroRig(root); $$('#home-cards,#home-stories', root).forEach((g) => K.tilt(g, '.pcard,.scard')); } };
+  };
+  function storeCardSafe(s) { return storyCard(s); }
+
+  function heroRig(root) {
+    const hero = $('.hero3d', root), rig = $('.rig', root); if (!hero || !rig) return;
+    const onScroll = () => { const y = Math.max(0, Math.min(1, window.scrollY / 700)); hero.style.setProperty('--sy', y.toFixed(3)); };
+    if (K.reduced()) { rig.style.setProperty('--ry', '-12deg'); rig.style.setProperty('--rx', '6deg'); return; }
+    let tx = 0, ty = 0, cx = 0, cy = 0, active = false, vis = true, raf; const t0 = performance.now();
+    const io = new IntersectionObserver((es) => { vis = es[0].isIntersecting; if (vis) { cancelAnimationFrame(raf); raf = requestAnimationFrame(step); } }); io.observe(hero);
+    const move = (e) => { const r = hero.getBoundingClientRect(); tx = ((e.clientX - r.left) / r.width - 0.5) * 34; ty = -((e.clientY - r.top) / r.height - 0.5) * 22; active = true; };
+    hero.addEventListener('pointermove', move); hero.addEventListener('pointerleave', () => { active = false; });
+    window.addEventListener('scroll', onScroll, { passive: true });
+    function step(now) { if (!vis || !document.contains(rig)) return; if (!active) { tx = -12 + Math.sin((now - t0) / 2600) * 12; ty = 5 + Math.cos((now - t0) / 3300) * 6; } cx += (tx - cx) * 0.07; cy += (ty - cy) * 0.07; rig.style.setProperty('--ry', cx.toFixed(2) + 'deg'); rig.style.setProperty('--rx', cy.toFixed(2) + 'deg'); raf = requestAnimationFrame(step); }
+    raf = requestAnimationFrame(step); onScroll();
+    K.onLeave(() => { cancelAnimationFrame(raf); io.disconnect(); window.removeEventListener('scroll', onScroll); });
+  }
+
+  /* ================= PASSPORT ================= */
+  const F = { q: '', only: false, d: '' };
+  V.passport = () => ({ title: t('passport') + ' — K_24 Karnataka Post Trails', html: `<div class="wrap page"><header class="phd"><div><p class="eyebrow dark">${esc(t('eyebrow'))}</p><h1>${esc(t('passport'))}</h1></div><div class="hero-stat sm">${ring(K.visitedCount(), K.PLACES.length)}</div></header>
+      <div class="toolbar"><label class="search"><span class="sr">${esc(t('search'))}</span><input type="search" id="pq" placeholder="${esc(t('search'))}" value="${esc(F.q)}" autocomplete="off"></label>
+        <label><span class="sr">${esc(t('jump'))}</span><select id="pd"><option value="">${esc(t('allDistricts'))}</option>${K.DISTRICTS.map((d) => `<option value="${d.order}" ${F.d === String(d.order) ? 'selected' : ''}>${pad2(d.order)} · ${esc(d.name)}</option>`).join('')}</select></label>
+        <label class="switch"><input type="checkbox" id="po" ${F.only ? 'checked' : ''}><span>${esc(t('onlyVisited'))}</span></label><span class="count" id="pc" aria-live="polite"></span></div><div id="plist"></div></div>`,
+    after(root) {
+      countUp(root); grow(root);
+      const draw = () => {
+        const q = F.q.toLowerCase().trim(); let n = 0;
+        const html = K.DISTRICTS.filter((d) => !F.d || String(d.order) === F.d).map((d) => {
+          const rows = K.PLACES.filter((p) => p.d === d.order && (!F.only || K.place(p.id).visited) && (!q || [dn(p), p.pin, d.name, d.official, '#' + p.serial].join(' ').toLowerCase().includes(q)));
+          if (!rows.length) return ''; n += rows.length; const all = K.PLACES.filter((p) => p.d === d.order), v = all.filter((p) => K.place(p.id).visited).length;
+          return `<section class="dist" id="dist-${d.order}"><header class="dhead"><span class="dnum">${pad2(d.order)}</span><div><h2>${esc(d.name)}</h2><small>${all.length} · p.${d.page} · ${v} ${esc(t('visited').toLowerCase())}${d.official !== d.name ? ' · ' + esc(t('nowCalled')) + ' ' + esc(d.official) : ''}</small></div><div class="bar" aria-hidden="true"><i style="width:${(v / all.length) * 100}%"></i></div></header><div class="grid pgrid3">${rows.map(pcard).join('')}</div></section>`; }).join('');
+        $('#plist', root).innerHTML = html || `<p class="muted">${esc(t('noMatch'))}</p>`; $('#pc', root).textContent = n + ' ' + t('shown');
+      };
+      draw(); K.tilt($('#plist', root), '.pcard');
+      $('#pq', root).addEventListener('input', (e) => { F.q = e.target.value; draw(); });
+      $('#pd', root).addEventListener('change', (e) => { F.d = e.target.value; draw(); });
+      $('#po', root).addEventListener('change', (e) => { F.only = e.target.checked; draw(); });
+    } });
+
+  /* ================= ONE POST OFFICE ================= */
+  V.place = (ctx) => {
+    const p = find(decodeURIComponent(ctx.params[0] || '')); if (!p) return V.notfound();
+    const c = K.place(p.id), d = dist(p), i = K.PLACES.indexOf(p), prev = K.PLACES[i - 1], next = K.PLACES[i + 1], owner = K.isOwner();
+    const slot = (key, label) => { const src = c.photos[key]; return src ? `<button class="pic tiltable" data-lb="${esc(safeUrl(K.img(src)))}" data-alt="${esc(label)}" type="button"><img src="${esc(safeUrl(K.img(src)))}" alt="${esc(label + ' — ' + dn(p))}" loading="lazy"><span class="cap">${esc(label)}</span><span class="glare"></span></button>` : (owner ? `<div class="pic empty"><span class="cap">${esc(label)}</span><small>+</small></div>` : ''); };
+    const pics = ['stamp', 'location', 'office'].map((k) => slot(k, t(k + 'Photo'))).join('');
+    return { title: '#' + p.serial + ' ' + dn(p) + ' — K_24 Karnataka Post Trails', html: `<article class="place"><header class="phead3d"><div class="wrap"><a class="back" href="#/passport">← ${esc(t('passport'))}</a><p class="eyebrow">#${p.serial} · ${esc(d.name)}</p><h1>${esc(dn(p))}</h1><p class="sub">${esc(t('pin'))} ${esc(p.pin)} · ${esc(p.theme)}</p></div></header>
+      <div class="wrap pl-grid"><section class="pl-main">
+        ${c.visited ? `<div class="pressrow"><div class="press" aria-hidden="true"><svg viewBox="0 0 120 120"><circle class="draw" pathLength="1" cx="60" cy="60" r="54" fill="none" stroke="#C83742" stroke-width="3"/><circle cx="60" cy="60" r="44" fill="none" stroke="#C83742" stroke-width="1" opacity=".6"/></svg><b>${esc(t('seal'))}</b></div><div><h2>${esc(t('myVisit'))}</h2>${c.visitDate ? `<p class="muted">${esc(t('visitDate'))}: <strong>${esc(fmtDate(c.visitDate))}</strong></p>` : ''}</div></div>
+          ${c.description ? `<p class="prose">${esc(c.description)}</p>` : ''}` : `<div class="notyet"><div class="ghost-stamp perf">${pad2(p.serial)}</div><p>${esc(t('notVisited'))}. ${esc(t('nothingYet'))}</p></div>`}
+        ${pics ? `<div class="photos">${pics}</div>` : (c.visited ? `<p class="muted">${esc(t('nothingYet'))}</p>` : '')}
+        ${owner ? `<p><button class="btn gold" data-edit type="button">✎ ${esc(t('edit'))}</button></p>` : ''}</section>
+        <aside class="card details"><dl>
+          <div><dt>${esc(t('district'))}</dt><dd>${esc(d.name)}${d.official !== d.name ? `<br><small class="muted">${esc(t('nowCalled'))} ${esc(d.official)}</small>` : ''}</dd></div><div><dt>${esc(t('pin'))}</dt><dd>${esc(p.pin)}</dd></div>
+          <div><dt>${esc(t('office'))}</dt><dd>${esc(TYPE[p.code] || p.type)}</dd></div><div><dt>${esc(t('doi'))}</dt><dd>${esc(fmtDate(p.doi))}</dd></div><div><dt>${esc(t('theme'))}</dt><dd>${esc(p.theme)}</dd></div>
+          <div><dt>${esc(t('pages'))}</dt><dd>${p.page}–${p.page + 1}</dd></div></dl>
+          ${p.pinStamp ? `<p class="warnbox">${esc(t('checkPin'))} ${esc(p.pinStamp)}.</p>` : ''}<p class="small muted">${esc(t('fromPassport'))}</p></aside></div>
+        <nav class="wrap pn">${prev ? `<a href="#/place/${enc(prev.id)}">← #${prev.serial} ${esc(dn(prev))}</a>` : '<span></span>'}${next ? `<a href="#/place/${enc(next.id)}">#${next.serial} ${esc(dn(next))} →</a>` : '<span></span>'}</nav></article>`,
+      after(root) { const pc = $('.photos', root); if (pc) { K.tilt(pc, '.pic', 7); pc.addEventListener('click', (e) => { const b = e.target.closest('[data-lb]'); if (b) K.lightbox(b.dataset.lb, b.dataset.alt); else if (e.target.closest('.pic.empty') && owner) K.editPlace(p.id); }); }
+        const eb = $('[data-edit]', root); if (eb) eb.addEventListener('click', () => K.editPlace(p.id)); } };
   };
 
-  /* ================= DESTINATION DETAILS ================= */
-  const para = (t, fallback) => (t ? `<p class="prose">${esc(t)}</p>` : `<p class="muted">${esc(fallback)}</p>`);
-  V.destination = (ctx) => {
-    const id = decodeURIComponent(ctx.params[0] || ''), l = S.find('passport', id);
-    if (!l) return V.notfound({ what: 'post office' });
-    const all = S.list('passport'), i = all.findIndex((x) => x.id === l.id), prev = all[i - 1], next = all[i + 1], pd = l.pdf || {};
-    const spent = S.list('expenses').filter((e) => e.placeId === l.id || (e.destination && e.destination === K.dn(l))), total = spent.reduce((a, e) => a + e.amount, 0);
-    const posts = S.list('blogs').filter((b) => b.destinationId === l.id), photos = (l.photos || []).filter(safeUrl), ver = S.verification(l), nav = K.navLinks(l), vf = l.verifiedFields || [];
-    const NV = '<span class="muted">Not verified</span>', row = (k, v, f) => `<div class="kv"><dt>${k}</dt><dd>${v || NV}${f && vf.includes(f) ? ' <span class="chip chip-visited" title="Confirmed against an official source">✓ confirmed</span>' : ''}</dd></div>`;
-    const dist = l.lat != null ? K.geo.label(K.geo.straight(K.origin, l)) : '';
-    const cmp = [['Place line', pd.placeLine, pd.placeLine], ['PIN', pd.pin, l.pin], ['PIN printed on the stamp', pd.pinOnStamp || '—', pd.pinOnStamp || '—'], ['Office code', pd.officeCode || '(none printed)', l.officeCode || '(none printed)'], ['DOI printed', pd.doiPrinted, l.doi ? fmtDate(l.doi) : ''], ['Theme', pd.theme, l.theme], ['District printed', pd.districtPrinted, l.passportDistrict]];
-    const t = S.track(l);
-    return { title: '#' + l.serial + ' ' + K.dn(l) + ' — K_24 Karnataka Post Trails', desc: K.describe(l),
-      html: `<article class="dest"><header class="dest-cover"><img class="art" src="${K.sceneUri(K.kindOf(l.category))}" alt="Illustrative artwork (not a photograph)">${photos[0] ? `<img class="real" src="${esc(photos[0])}" alt="${esc(K.dn(l))}">` : ''}<div class="dest-title wrap"><a class="back" href="#/passport">${ic('left')} Passport</a><div class="tags"><span class="tag">#${l.serial}</span><span class="tag">${esc(l.passportDistrict)}</span><span class="tag">${esc(K.typeLabel(l))}</span></div><h1>${esc(K.dn(l))}</h1><p>PIN ${esc(l.pin)} · ${esc(l.theme)} · passport pp. ${l.passportPage}–${l.passportPageEnd || l.passportPage + 1}</p></div></header>
-        <div class="wrap dest-grid"><div class="dest-main"><div class="chips big-chips">${chips(l)}</div>
-          ${pd.pinOnStamp ? `<div class="warn"><strong>PIN to check:</strong> the PLACE line in your passport prints ${esc(pd.pin)}, but the cancellation on the same page prints ${esc(pd.pinOnStamp)}. Confirm with India Post before relying on either.</div>` : ''}
-          ${(l.dataNotes || []).map((n) => `<p class="callout">${esc(n)}</p>`).join('')}
-          <section class="card pad track-card"><h2>My tracking</h2><div class="fields"><div class="field"><label for="t-st">Status</label><select id="t-st"><option value="not" ${t === 'not' ? 'selected' : ''}>Not visited</option><option value="planned" ${t === 'planned' ? 'selected' : ''}>Planned</option><option value="visited" ${t === 'visited' ? 'selected' : ''}>Visited</option></select></div>
-            <div class="field"><label for="t-dt">Visit date</label><input id="t-dt" type="date" value="${esc(l.visitDate)}"></div><div class="field field-check full"><label><input type="checkbox" id="t-ppc" ${l.cancellationCollected ? 'checked' : ''}> <span>Pictorial cancellation (PPC) collected</span></label></div>
-            <div class="field full"><label for="t-nt">Personal notes</label><textarea id="t-nt" rows="3" maxlength="4000">${esc(l.notes)}</textarea></div></div>
-            <div class="btn-row"><button class="btn btn-primary" data-edit="${esc(l.id)}">${ic('edit')} Edit all details</button><button class="btn btn-ghost" data-exp>${ic('plus')} Add expense</button></div></section>
-          <section><h2>About this post office</h2><p class="prose">${esc(K.describe(l))}</p>${l.history ? `<p class="prose">${esc(l.history)}</p>` : '<p class="muted">Philatelic or postal history beyond what the passport prints: not available.</p>'}</section>
-          <section><h2>Location</h2><div class="btn-row">${nav.html}${l.lat != null ? `<a class="btn btn-ghost btn-sm" href="#/explore?id=${enc(l.id)}">View on map</a>` : ''}</div><p class="note">${esc(nav.note)}${dist ? ' Distance from ' + esc(K.origin.name) + ': ' + esc(dist) + '.' : ''}</p></section>
-          <section><h2>Expenses</h2>${spent.length ? `<ul class="plain">${spent.map((e) => `<li>${esc(fmtDate(e.date))} · ${esc(e.description)} · <strong>${inr(e.amount)}</strong></li>`).join('')}</ul><p><strong>Total ${inr(total)}</strong> · <a href="#/expenses">Open expense tracker</a></p>` : '<p class="muted">No expenses logged for this post office yet.</p>'}</section>
-          ${pd.text ? `<section><details class="card pad"><summary><strong>Text printed on the passport page</strong> <small class="muted">(machine-read draft — may contain small errors)</small></summary><p class="prose small">${esc(pd.text)}</p><p class="note">${esc(pd.textBasis || '')}. Compare with your scanned page.</p></details></section>` : ''}
-          <section><details class="card pad"><summary><strong>Original passport values vs current</strong></summary><div class="table-wrap"><table class="tbl"><thead><tr><th>Field</th><th>As read from passport</th><th>Current</th></tr></thead><tbody>${cmp.map((r) => `<tr><td data-label="Field">${esc(r[0])}</td><td data-label="Passport">${esc(r[1] || '—')}</td><td data-label="Current">${esc(r[2] || '—')}${String(r[1] || '') !== String(r[2] || '') && r[0] !== 'PIN printed on the stamp' && r[0] !== 'DOI printed' && r[0] !== 'Place line' ? ' <span class="chip chip-cancel">edited</span>' : ''}</td></tr>`).join('')}</tbody></table></div></details></section>
-          <section><h2>Gallery</h2>${photos.length ? `<div class="gallery">${photos.map((p) => `<figure class="ph"><img class="real" loading="lazy" src="${esc(p)}" alt="${esc(K.dn(l))} photo"></figure>`).join('')}</div>` : empty('No photographs yet', 'Add links to your own photographs by editing this record.')}</section>
-          ${posts.length ? `<section><h2>Related posts</h2><div class="grid g3">${posts.map(blogCard).join('')}</div></section>` : ''}</div>
-        <aside class="dest-side"><div class="card pad"><h2>Record</h2><dl>${row('Serial', '#' + l.serial)}${row('Passport pages', esc(l.passportPage + '–' + (l.passportPageEnd || l.passportPage + 1)))}${row('Post office', esc(K.dn(l)), 'name')}${row('Classification', esc(K.typeLabel(l)), 'officeType')}${row('PIN code', esc(l.pin), 'pin')}
-          ${row('DOI (date of issue)', l.doi ? esc(fmtDate(l.doi)) : '', 'doi')}${row('Passport theme', esc(l.theme))}${row('District (passport)', esc(l.passportDistrict), 'district')}${row('District (current)', esc(l.currentDistrict))}${row('Taluk', esc(l.taluk), 'taluk')}${row('Parent office', esc(l.parentOffice), 'parentOffice')}${row('Delivery status', esc(l.deliveryStatus))}${row('Postal division', esc(l.division), 'division')}${row('Postal region', esc(l.region), 'region')}${row('Postal circle', esc(l.circle))}${row('Address', esc(l.address), 'address')}
-          ${row('Coordinates', l.lat != null ? esc(l.lat.toFixed(5) + ', ' + l.lng.toFixed(5)) + ' <small class="muted">(' + (l.coordStatus === 'verified' ? 'confirmed' : 'approximate') + (l.coordSource ? ' · ' + esc(l.coordSource) : '') + ')</small>' : '', 'coordinates')}
-          ${l.source && safeUrl(l.source) ? `<div class="kv"><dt>Source</dt><dd><a href="${esc(safeUrl(l.source))}" target="_blank" rel="noopener noreferrer">${K.store.officialSource(l.source) ? 'Official source' : 'Source (not an official domain)'}</a></dd></div>` : row('Source', '')}${row('Last verified', esc(fmtDate(l.verifiedDate)))}</dl></div></aside></div>
-        <nav class="wrap pn" aria-label="Previous and next post office">${prev ? `<a href="#/destination/${enc(prev.id)}">${ic('left')} #${prev.serial} ${esc(K.dn(prev))}</a>` : '<span></span>'}${next ? `<a href="#/destination/${enc(next.id)}">#${next.serial} ${esc(K.dn(next))} ${ic('arrow')}</a>` : '<span></span>'}</nav></article>`,
-      after(root) {
-        const save = (patch) => S.upsert('passport', Object.assign({}, S.find('passport', l.id), patch));
-        root.addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; if (b.dataset.edit) K.editLocation(b.dataset.edit, () => K.render()); else if (b.hasAttribute('data-exp')) K.editExpense(null, () => K.render(), l.id); });
-        $('#t-st', root).addEventListener('change', (e) => { K.setTrack(S.find('passport', l.id), e.target.value); K.toast('Saved.'); K.render(); });
-        $('#t-ppc', root).addEventListener('change', (e) => { save({ cancellationCollected: e.target.checked }); K.toast('Saved.'); K.render(); });
-        $('#t-dt', root).addEventListener('change', (e) => { save({ visitDate: e.target.value }); K.toast('Saved.'); });
-        $('#t-nt', root).addEventListener('change', (e) => { save({ notes: e.target.value.trim() }); K.toast('Notes saved.'); });
-        root.addEventListener('error', (e) => { const f = e.target.closest && e.target.closest('.ph'); if (f) f.remove(); }, true); } };
-  };
+  /* ================= JOURNEY ================= */
+  V.journey = () => { const list = sortedStories(), owner = K.isOwner();
+    return { title: t('stories') + ' — K_24 Karnataka Post Trails', html: `<div class="wrap page"><header class="phd"><div><p class="eyebrow dark">${esc(t('eyebrow'))}</p><h1>${esc(t('stories'))}</h1></div>${owner ? `<button class="btn gold" data-new type="button">+ ${esc(t('newStory'))}</button>` : ''}</header>
+      ${list.length ? `<div class="grid sgrid" id="slist">${list.map(storyCard).join('')}</div>` : `<p class="muted">${esc(t('noStories'))}</p>`}</div>`,
+      after(root) { const g = $('#slist', root); if (g) K.tilt(g, '.scard'); const b = $('[data-new]', root); if (b) b.addEventListener('click', () => K.editStory(null)); } }; };
+  V.story = (ctx) => { const s = K.content.stories.find((x) => x.id === decodeURIComponent(ctx.params[0] || '')); if (!s) return V.notfound(); const p = find(s.placeId), owner = K.isOwner();
+    return { title: s.title + ' — K_24 Karnataka Post Trails', html: `<article class="place story"><header class="phead3d"><div class="wrap"><a class="back" href="#/journey">← ${esc(t('stories'))}</a><p class="eyebrow">${esc(fmtDate(s.date))}</p><h1>${esc(s.title)}</h1>${p ? `<p class="sub"><a href="#/place/${enc(p.id)}">#${p.serial} ${esc(dn(p))}</a></p>` : ''}</div></header>
+      <div class="wrap narrow"><div class="prose">${s.text.split(/\n{2,}/).map((x) => `<p>${esc(x)}</p>`).join('')}</div>${s.photos.length ? `<div class="photos many">${s.photos.map((ph, i) => `<button class="pic" data-lb="${esc(safeUrl(K.img(ph)))}" data-alt="${esc(s.title)}" type="button"><img src="${esc(safeUrl(K.img(ph)))}" alt="${esc(s.title)} ${i + 1}" loading="lazy"><span class="glare"></span></button>`).join('')}</div>` : ''}
+        ${owner ? `<p class="btn-row"><button class="btn gold" data-edit type="button">✎ ${esc(t('edit'))}</button><button class="btn danger" data-del type="button">${esc(t('del'))}</button></p>` : ''}</div></article>`,
+      after(root) { const g = $('.photos', root); if (g) { K.tilt(g, '.pic', 6); g.addEventListener('click', (e) => { const b = e.target.closest('[data-lb]'); if (b) K.lightbox(b.dataset.lb, b.dataset.alt); }); }
+        const e1 = $('[data-edit]', root), d1 = $('[data-del]', root); if (e1) e1.addEventListener('click', () => K.editStory(s.id)); if (d1) d1.addEventListener('click', () => K.deleteStory(s.id)); } }; };
+  V.notfound = () => ({ title: 'Not found', html: `<div class="wrap page"><h1>Not found</h1><p class="muted">This page isn’t here.</p><p><a class="btn gold" href="#/">${esc(t('home'))}</a></p></div>` });
 })();
-(window.K24.mods = window.K24.mods || {})['views'] = '2026.10.20a';
+(window.K24.mods = window.K24.mods || {}).views = '5.0';

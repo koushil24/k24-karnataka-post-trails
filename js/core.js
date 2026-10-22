@@ -1,0 +1,57 @@
+/* Core helpers: escaping, translations (English / ಕನ್ನಡ), 3D tilt, dialogs, toasts. */
+(function () {
+  const K = (window.K24 = window.K24 || {});
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const safeUrl = (u) => { u = String(u || '').trim(); return /^(photos\/|assets\/|data:image\/(jpeg|png|webp);base64,|https:\/\/)/i.test(u) ? u : ''; };
+  const reduced = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const fmtDate = (d) => { if (!d) return ''; const x = new Date(d + 'T00:00:00'); return isNaN(x) ? '' : x.toLocaleDateString(K.lang === 'kn' ? 'kn-IN' : 'en-IN', { day: 'numeric', month: 'short', year: 'numeric' }); };
+  Object.assign(K, { $, $$, esc, safeUrl, reduced, fmtDate });
+
+  const T = {
+    en: { home: 'Home', passport: 'Passport', journey: 'Journey', tagline: 'Every Postmark Tells a Story.', eyebrow: 'Karnataka Philately Passport',
+      lede: 'My journey across Karnataka to collect permanent pictorial cancellations — one post office at a time.', openPassport: 'Open my passport', readJourney: 'Read my journey',
+      visitedOf: 'post offices visited', visited: 'Visited', notVisited: 'Not visited yet', seal: 'VISITED', latestVisits: 'Latest visits', latestStories: 'Latest stories', viewAll: 'View all',
+      search: 'Search name, PIN or district…', onlyVisited: 'Only visited', allDistricts: 'All districts', jump: 'Jump to district', shown: 'shown', noMatch: 'No post office matches.',
+      district: 'District', pin: 'PIN code', doi: 'Date of issue (DOI)', theme: 'Passport theme', office: 'Office type', pages: 'Passport pages', nowCalled: 'Now officially', fromPassport: 'Details read from my passport.',
+      myVisit: 'My visit', visitDate: 'Visit date', stampPhoto: 'Photo of the stamp', locationPhoto: 'Photo of the location', officePhoto: 'Photo of the post office', nothingYet: 'Nothing posted for this post office yet.',
+      checkPin: 'The stamp on this page prints PIN', back: 'Back', stories: 'Karnataka journey', noStories: 'No stories yet.', newStory: 'New story', edit: 'Edit', del: 'Delete', save: 'Save & publish', cancel: 'Cancel',
+      owner: 'Owner', signOut: 'Sign out', ownerMode: 'Owner mode', menu: 'Menu', theme_: 'Light / dark', lang: 'ಕನ್ನಡ', tryAgain: 'Try again', loadFail: 'Couldn’t load the latest posts.', skip: 'Skip to content',
+      about: 'A personal collection of Karnataka’s permanent pictorial cancellations. Photos and stories are mine.', progressLabel: 'Passport progress', story: 'Story', relatedOffice: 'Related post office (optional)', title: 'Title', text: 'Story', date: 'Date', description: 'What I want to remember about this visit' },
+    kn: { home: 'ಮುಖಪುಟ', passport: 'ಪಾಸ್‌ಪೋರ್ಟ್', journey: 'ಪ್ರಯಾಣ', tagline: 'ಪ್ರತಿ ಅಂಚೆ ಮುದ್ರೆಯೂ ಒಂದು ಕಥೆ ಹೇಳುತ್ತದೆ.', eyebrow: 'ಕರ್ನಾಟಕ ಫಿಲಾಟೆಲಿ ಪಾಸ್‌ಪೋರ್ಟ್',
+      lede: 'ಶಾಶ್ವತ ಚಿತ್ರ ಅಂಚೆ ಮುದ್ರೆಗಳನ್ನು ಸಂಗ್ರಹಿಸಲು ಕರ್ನಾಟಕದಾದ್ಯಂತ ನನ್ನ ಪ್ರಯಾಣ — ಒಂದೊಂದು ಅಂಚೆ ಕಚೇರಿ.', openPassport: 'ನನ್ನ ಪಾಸ್‌ಪೋರ್ಟ್ ತೆರೆಯಿರಿ', readJourney: 'ನನ್ನ ಪ್ರಯಾಣ ಓದಿ',
+      visitedOf: 'ಅಂಚೆ ಕಚೇರಿಗಳಿಗೆ ಭೇಟಿ', visited: 'ಭೇಟಿ ನೀಡಿದ್ದೇನೆ', notVisited: 'ಇನ್ನೂ ಭೇಟಿ ನೀಡಿಲ್ಲ', seal: 'ಭೇಟಿ', latestVisits: 'ಇತ್ತೀಚಿನ ಭೇಟಿಗಳು', latestStories: 'ಇತ್ತೀಚಿನ ಕಥೆಗಳು', viewAll: 'ಎಲ್ಲವನ್ನೂ ನೋಡಿ',
+      search: 'ಹೆಸರು, ಪಿನ್ ಅಥವಾ ಜಿಲ್ಲೆ ಹುಡುಕಿ…', onlyVisited: 'ಭೇಟಿ ನೀಡಿದವು ಮಾತ್ರ', allDistricts: 'ಎಲ್ಲಾ ಜಿಲ್ಲೆಗಳು', jump: 'ಜಿಲ್ಲೆಗೆ ಹೋಗಿ', shown: 'ತೋರಿಸಲಾಗಿದೆ', noMatch: 'ಯಾವುದೇ ಅಂಚೆ ಕಚೇರಿ ಹೊಂದಿಕೆಯಾಗಲಿಲ್ಲ.',
+      district: 'ಜಿಲ್ಲೆ', pin: 'ಪಿನ್ ಕೋಡ್', doi: 'ವಿತರಣಾ ದಿನಾಂಕ (DOI)', theme: 'ಪಾಸ್‌ಪೋರ್ಟ್ ವಿಷಯ', office: 'ಕಚೇರಿಯ ಪ್ರಕಾರ', pages: 'ಪಾಸ್‌ಪೋರ್ಟ್ ಪುಟಗಳು', nowCalled: 'ಈಗಿನ ಅಧಿಕೃತ ಹೆಸರು', fromPassport: 'ವಿವರಗಳನ್ನು ನನ್ನ ಪಾಸ್‌ಪೋರ್ಟ್‌ನಿಂದ ಓದಲಾಗಿದೆ.',
+      myVisit: 'ನನ್ನ ಭೇಟಿ', visitDate: 'ಭೇಟಿ ದಿನಾಂಕ', stampPhoto: 'ಅಂಚೆ ಮುದ್ರೆಯ ಫೋಟೋ', locationPhoto: 'ಸ್ಥಳದ ಫೋಟೋ', officePhoto: 'ಅಂಚೆ ಕಚೇರಿಯ ಫೋಟೋ', nothingYet: 'ಈ ಅಂಚೆ ಕಚೇರಿಗೆ ಇನ್ನೂ ಏನನ್ನೂ ಪ್ರಕಟಿಸಿಲ್ಲ.',
+      checkPin: 'ಈ ಪುಟದ ಮುದ್ರೆಯಲ್ಲಿ ಇರುವ ಪಿನ್', back: 'ಹಿಂದೆ', stories: 'ಕರ್ನಾಟಕ ಪ್ರಯಾಣ', noStories: 'ಇನ್ನೂ ಕಥೆಗಳಿಲ್ಲ.', newStory: 'ಹೊಸ ಕಥೆ', edit: 'ತಿದ್ದಿ', del: 'ಅಳಿಸಿ', save: 'ಉಳಿಸಿ ಮತ್ತು ಪ್ರಕಟಿಸಿ', cancel: 'ರದ್ದು',
+      owner: 'ಮಾಲೀಕರು', signOut: 'ಸೈನ್ ಔಟ್', ownerMode: 'ಮಾಲೀಕರ ಮೋಡ್', menu: 'ಮೆನು', theme_: 'ಬೆಳಕು / ಗಾಢ', lang: 'English', tryAgain: 'ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ', loadFail: 'ಇತ್ತೀಚಿನ ಪೋಸ್ಟ್‌ಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗಲಿಲ್ಲ.', skip: 'ವಿಷಯಕ್ಕೆ ಹೋಗಿ',
+      about: 'ಕರ್ನಾಟಕದ ಶಾಶ್ವತ ಚಿತ್ರ ಅಂಚೆ ಮುದ್ರೆಗಳ ವೈಯಕ್ತಿಕ ಸಂಗ್ರಹ. ಫೋಟೋಗಳು ಮತ್ತು ಕಥೆಗಳು ನನ್ನವು.', progressLabel: 'ಪಾಸ್‌ಪೋರ್ಟ್ ಪ್ರಗತಿ', story: 'ಕಥೆ', relatedOffice: 'ಸಂಬಂಧಿತ ಅಂಚೆ ಕಚೇರಿ (ಐಚ್ಛಿಕ)', title: 'ಶೀರ್ಷಿಕೆ', text: 'ಕಥೆ', date: 'ದಿನಾಂಕ', description: 'ಈ ಭೇಟಿಯ ಬಗ್ಗೆ ನಾನು ನೆನಪಿಡಲು ಬಯಸುವುದು' }
+  };
+  K.lang = (function () { try { return localStorage.getItem('k24.lang') === 'kn' ? 'kn' : 'en'; } catch (e) { return 'en'; } })();
+  K.t = (k) => (T[K.lang] && T[K.lang][k]) || T.en[k] || k;
+  K.setLang = (l) => { K.lang = l; try { localStorage.setItem('k24.lang', l); } catch (e) {} document.documentElement.lang = l === 'kn' ? 'kn' : 'en-IN'; $$('[data-i18n]').forEach((el) => { el.textContent = K.t(el.dataset.i18n); }); $$('[data-i18n-label]').forEach((el) => el.setAttribute('aria-label', K.t(el.dataset.i18nLabel))); };
+
+  /* ---- cleanup registry (so animations stop when you leave a page) ---- */
+  let leaves = []; K.onLeave = (f) => leaves.push(f); K.leave = () => { leaves.forEach((f) => { try { f(); } catch (e) {} }); leaves = []; };
+
+  /* ---- 3D tilt for cards (mouse / pen). One delegated listener per grid. ---- */
+  K.tilt = (root, sel, max) => {
+    if (K.reduced()) return; max = max || 9; let cur = null;
+    const reset = () => { if (cur) { cur.style.setProperty('--rx', '0deg'); cur.style.setProperty('--ry', '0deg'); cur.classList.remove('tilting'); cur = null; } };
+    root.addEventListener('pointermove', (e) => {
+      if (e.pointerType === 'touch') return; const el = e.target.closest(sel); if (!el) { reset(); return; }
+      if (el !== cur) { reset(); cur = el; el.classList.add('tilting'); }
+      const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      el.style.setProperty('--ry', ((x - 0.5) * 2 * max).toFixed(2) + 'deg'); el.style.setProperty('--rx', ((0.5 - y) * 2 * max).toFixed(2) + 'deg'); el.style.setProperty('--gx', (x * 100).toFixed(0) + '%'); el.style.setProperty('--gy', (y * 100).toFixed(0) + '%');
+    });
+    root.addEventListener('pointerleave', reset);
+  };
+
+  /* ---- dialogs & toasts ---- */
+  K.dialog = (html, cls) => { const d = document.createElement('dialog'); d.className = 'dlg ' + (cls || ''); d.innerHTML = html; document.body.appendChild(d); d.addEventListener('close', () => d.remove()); d.addEventListener('click', (e) => { if (e.target === d) d.close(); }); $$('[data-close]', d).forEach((b) => b.addEventListener('click', () => d.close())); if (d.showModal) d.showModal(); else d.setAttribute('open', ''); return d; };
+  K.confirm = (msg, ok) => new Promise((res) => { let r = false; const d = K.dialog(`<div class="dlg-in"><p>${esc(msg)}</p><div class="dlg-foot"><button class="btn ghost" data-close type="button">${esc(K.t('cancel'))}</button><button class="btn danger" data-ok type="button">${esc(ok || 'OK')}</button></div></div>`, 'sm'); $('[data-ok]', d).addEventListener('click', () => { r = true; d.close(); }); d.addEventListener('close', () => res(r)); });
+  K.toast = (msg, type) => { const box = $('#toasts'); if (!box) return; const t = document.createElement('div'); t.className = 'toast ' + (type || ''); t.textContent = msg; box.appendChild(t); setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 300); }, type === 'error' ? 7000 : 3200); };
+  K.lightbox = (src, alt) => { K.dialog(`<div class="lb"><button class="x" data-close aria-label="Close">✕</button><img src="${esc(src)}" alt="${esc(alt || '')}"></div>`, 'lbox'); };
+})();
+(window.K24.mods = window.K24.mods || {}).core = '5.0';
