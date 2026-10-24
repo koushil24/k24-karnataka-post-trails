@@ -1,0 +1,22 @@
+ok    100 records in the app and in the passport source (100/100)
+ok    no duplicate IDs
+ok    serial numbers 1–100 in order, none missing
+ok    no duplicate post offices
+ok    app records match the passport source file field by field
+ok    DOI text and office code are kept exactly as printed
+ok    30 districts in the passport index order
+ok    index pages = 2 pages × records in every district
+ok    every record lies in its district’s serial range
+ok    every PIN has exactly six digits
+ok    every DOI is a real date
+ok    passport page numbers follow the index
+ok    office codes are as printed (2 have none, 1 is MDG)
+ok    no coordinates are invented in the data file
+info  shared PINs: 560001 → #15,#16,#17 | 577411 → #72,#73 | 587201 → #2,#3 | 591115 → #8,#9
+ok    the single PIN conflict (#9) is flagged
+ok    every file referenced by the pages exists with exact capitalisation (12 checked)
+ok    data/content.json is valid
+ok    all script/style links carry the same version stamp
+ok    every module the page waits for exists
+
+All checks passed
