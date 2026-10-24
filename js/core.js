@@ -11,7 +11,7 @@
   const T = {
     en: { home: 'Home', passport: 'Passport', journey: 'Journey', tagline: 'Every Postmark Tells a Story.', eyebrow: 'Karnataka Philately Passport',
       lede: 'My journey across Karnataka to collect permanent pictorial cancellations — one post office at a time.', openPassport: 'Open my passport', readJourney: 'Read my journey',
-      visitedOf: 'post offices visited', visited: 'Visited', notVisited: 'Not visited yet', seal: 'VISITED', latestVisits: 'Latest visits', latestStories: 'Latest stories', viewAll: 'View all',
+      visitedOf: 'post offices visited', visitedOne: 'post office visited', visited: 'Visited', notVisited: 'Not visited yet', seal: 'VISITED', latestVisits: 'Latest visits', latestStories: 'Latest stories', viewAll: 'View all',
       search: 'Search name, PIN or district…', onlyVisited: 'Only visited', allDistricts: 'All districts', jump: 'Jump to district', shown: 'shown', noMatch: 'No post office matches.',
       district: 'District', pin: 'PIN code', doi: 'Date of issue (DOI)', theme: 'Passport theme', office: 'Office type', pages: 'Passport pages', nowCalled: 'Now officially', fromPassport: 'Details read from my passport.',
       myVisit: 'My visit', visitDate: 'Visit date', stampPhoto: 'Photo of the stamp', locationPhoto: 'Photo of the location', officePhoto: 'Photo of the post office', nothingYet: 'Nothing posted for this post office yet.',
@@ -20,7 +20,7 @@
       about: 'A personal collection of Karnataka’s permanent pictorial cancellations. Photos and stories are mine.', progressLabel: 'Passport progress', story: 'Story', relatedOffice: 'Related post office (optional)', title: 'Title', text: 'Story', date: 'Date', description: 'What I want to remember about this visit' },
     kn: { home: 'ಮುಖಪುಟ', passport: 'ಪಾಸ್‌ಪೋರ್ಟ್', journey: 'ಪ್ರಯಾಣ', tagline: 'ಪ್ರತಿ ಅಂಚೆ ಮುದ್ರೆಯೂ ಒಂದು ಕಥೆ ಹೇಳುತ್ತದೆ.', eyebrow: 'ಕರ್ನಾಟಕ ಫಿಲಾಟೆಲಿ ಪಾಸ್‌ಪೋರ್ಟ್',
       lede: 'ಶಾಶ್ವತ ಚಿತ್ರ ಅಂಚೆ ಮುದ್ರೆಗಳನ್ನು ಸಂಗ್ರಹಿಸಲು ಕರ್ನಾಟಕದಾದ್ಯಂತ ನನ್ನ ಪ್ರಯಾಣ — ಒಂದೊಂದು ಅಂಚೆ ಕಚೇರಿ.', openPassport: 'ನನ್ನ ಪಾಸ್‌ಪೋರ್ಟ್ ತೆರೆಯಿರಿ', readJourney: 'ನನ್ನ ಪ್ರಯಾಣ ಓದಿ',
-      visitedOf: 'ಅಂಚೆ ಕಚೇರಿಗಳಿಗೆ ಭೇಟಿ', visited: 'ಭೇಟಿ ನೀಡಿದ್ದೇನೆ', notVisited: 'ಇನ್ನೂ ಭೇಟಿ ನೀಡಿಲ್ಲ', seal: 'ಭೇಟಿ', latestVisits: 'ಇತ್ತೀಚಿನ ಭೇಟಿಗಳು', latestStories: 'ಇತ್ತೀಚಿನ ಕಥೆಗಳು', viewAll: 'ಎಲ್ಲವನ್ನೂ ನೋಡಿ',
+      visitedOf: 'ಅಂಚೆ ಕಚೇರಿಗಳಿಗೆ ಭೇಟಿ', visitedOne: 'ಅಂಚೆ ಕಚೇರಿಗೆ ಭೇಟಿ', visited: 'ಭೇಟಿ ನೀಡಿದ್ದೇನೆ', notVisited: 'ಇನ್ನೂ ಭೇಟಿ ನೀಡಿಲ್ಲ', seal: 'ಭೇಟಿ', latestVisits: 'ಇತ್ತೀಚಿನ ಭೇಟಿಗಳು', latestStories: 'ಇತ್ತೀಚಿನ ಕಥೆಗಳು', viewAll: 'ಎಲ್ಲವನ್ನೂ ನೋಡಿ',
       search: 'ಹೆಸರು, ಪಿನ್ ಅಥವಾ ಜಿಲ್ಲೆ ಹುಡುಕಿ…', onlyVisited: 'ಭೇಟಿ ನೀಡಿದವು ಮಾತ್ರ', allDistricts: 'ಎಲ್ಲಾ ಜಿಲ್ಲೆಗಳು', jump: 'ಜಿಲ್ಲೆಗೆ ಹೋಗಿ', shown: 'ತೋರಿಸಲಾಗಿದೆ', noMatch: 'ಯಾವುದೇ ಅಂಚೆ ಕಚೇರಿ ಹೊಂದಿಕೆಯಾಗಲಿಲ್ಲ.',
       district: 'ಜಿಲ್ಲೆ', pin: 'ಪಿನ್ ಕೋಡ್', doi: 'ವಿತರಣಾ ದಿನಾಂಕ (DOI)', theme: 'ಪಾಸ್‌ಪೋರ್ಟ್ ವಿಷಯ', office: 'ಕಚೇರಿಯ ಪ್ರಕಾರ', pages: 'ಪಾಸ್‌ಪೋರ್ಟ್ ಪುಟಗಳು', nowCalled: 'ಈಗಿನ ಅಧಿಕೃತ ಹೆಸರು', fromPassport: 'ವಿವರಗಳನ್ನು ನನ್ನ ಪಾಸ್‌ಪೋರ್ಟ್‌ನಿಂದ ಓದಲಾಗಿದೆ.',
       myVisit: 'ನನ್ನ ಭೇಟಿ', visitDate: 'ಭೇಟಿ ದಿನಾಂಕ', stampPhoto: 'ಅಂಚೆ ಮುದ್ರೆಯ ಫೋಟೋ', locationPhoto: 'ಸ್ಥಳದ ಫೋಟೋ', officePhoto: 'ಅಂಚೆ ಕಚೇರಿಯ ಫೋಟೋ', nothingYet: 'ಈ ಅಂಚೆ ಕಚೇರಿಗೆ ಇನ್ನೂ ಏನನ್ನೂ ಪ್ರಕಟಿಸಿಲ್ಲ.',

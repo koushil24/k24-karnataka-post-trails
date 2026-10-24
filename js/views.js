@@ -36,7 +36,7 @@
       <section class="hero3d"><div class="aurora" aria-hidden="true"></div><div class="wrap hero-grid">
         <div class="hero-copy"><p class="eyebrow">${esc(t('eyebrow'))}</p><h1>${esc(t('tagline'))}</h1><p class="lede">${esc(t('lede'))}</p>
           <div class="btn-row"><a class="btn gold" href="#/passport">${esc(t('openPassport'))}</a><a class="btn ghost-l" href="#/journey">${esc(t('readJourney'))}</a></div>
-          <div class="hero-stat">${ring(done, total)}<p><strong>${done}</strong> ${esc(t('visitedOf'))}<br><small>${esc(t('progressLabel'))}</small></p></div></div>
+          <div class="hero-stat">${ring(done, total)}<p><strong>${done}</strong> ${esc(done === 1 ? t('visitedOne') : t('visitedOf'))}<br><small>${esc(t('progressLabel'))}</small></p></div></div>
         <div class="stage" aria-hidden="true"><div class="rig"><div class="stamp3d">
             <div class="plate back2"></div><div class="plate back1"></div><div class="plate front perf"></div>
             <div class="layer l-far">${artFar}</div><div class="layer l-near">${artNear}</div>
@@ -103,7 +103,7 @@
         ${owner ? `<p><button class="btn gold" data-edit type="button">✎ ${esc(t('edit'))}</button></p>` : ''}</section>
         <aside class="card details"><dl>
           <div><dt>${esc(t('district'))}</dt><dd>${esc(d.name)}${d.official !== d.name ? `<br><small class="muted">${esc(t('nowCalled'))} ${esc(d.official)}</small>` : ''}</dd></div><div><dt>${esc(t('pin'))}</dt><dd>${esc(p.pin)}</dd></div>
-          <div><dt>${esc(t('office'))}</dt><dd>${esc(TYPE[p.code] || p.type)}</dd></div><div><dt>${esc(t('doi'))}</dt><dd>${esc(fmtDate(p.doi))}</dd></div><div><dt>${esc(t('theme'))}</dt><dd>${esc(p.theme)}</dd></div>
+          <div><dt>${esc(t('office'))}</dt><dd>${esc(TYPE[p.code] || p.type)}</dd></div><div><dt>${esc(t('doi'))}</dt><dd>${esc(p.doiP)}</dd></div><div><dt>${esc(t('theme'))}</dt><dd>${esc(p.theme)}</dd></div>
           <div><dt>${esc(t('pages'))}</dt><dd>${p.page}–${p.page + 1}</dd></div></dl>
           ${p.pinStamp ? `<p class="warnbox">${esc(t('checkPin'))} ${esc(p.pinStamp)}.</p>` : ''}<p class="small muted">${esc(t('fromPassport'))}</p></aside></div>
         <nav class="wrap pn">${prev ? `<a href="#/place/${enc(prev.id)}">← #${prev.serial} ${esc(dn(prev))}</a>` : '<span></span>'}${next ? `<a href="#/place/${enc(next.id)}">#${next.serial} ${esc(dn(next))} →</a>` : '<span></span>'}</nav></article>`,
