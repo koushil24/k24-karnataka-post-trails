@@ -5,7 +5,7 @@ Visitors can only look. You — and only you — can add a visit description, ph
 English / ಕನ್ನಡ and light / dark are included. No other features.
 
 ## 1. Put it on GitHub
-1. In your repository `k24-karnataka-post-trails`, upload **everything in this folder** (all folders too), replacing the old files. Keep the folder names: `assets`, `css`, `js`, `data`, `photos`, `docs`.
+1. In your repository `k24-karnataka-post-trails`, upload **everything in this zip** (all folders too), replacing the old files. **The zip deliberately does not contain `data/content.json` or the `photos` folder — those are your published posts; never replace them.** Keep the folder names: `assets`, `css`, `js`, `data`, `docs`, `tools`.
 2. Settings → Pages → Deploy from a branch → `main` / `(root)`.
 3. Wait about a minute and open your site in a private tab. If something is missing, the page itself tells you which file.
 
