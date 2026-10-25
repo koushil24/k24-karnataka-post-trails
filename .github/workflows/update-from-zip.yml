@@ -1,0 +1,54 @@
+name: Update Website From ZIP
+
+on:
+  push:
+    paths:
+      - '*.zip'
+
+permissions:
+  contents: write
+
+jobs:
+  unzip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Unzip and update website
+        run: |
+          set -e
+
+          shopt -s nullglob
+          zips=(*.zip)
+
+          if [ ${#zips[@]} -eq 0 ]; then
+            echo "No ZIP files found."
+            exit 1
+          fi
+
+          mkdir -p /tmp/unzip
+
+          for z in "${zips[@]}"; do
+            rm -rf /tmp/unzip/*
+            unzip -q "$z" -d /tmp/unzip
+
+            src=/tmp/unzip
+            items=(/tmp/unzip/* /tmp/unzip/.[!.]*)
+
+            if [ ${#items[@]} -eq 1 ] && [ -d "${items[0]}" ]; then
+              src="${items[0]}"
+            fi
+
+            cp -a "$src"/. .
+            rm -f "$z"
+          done
+
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+          git commit -m "Update website from ZIP"
+          git push
