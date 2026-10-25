@@ -20,6 +20,7 @@ A website on GitHub Pages cannot save anything by itself, so the site saves your
 The token is stored only in that browser on that device. **Sign out** (footer “Owner mode” button) removes it. If you ever lose the phone, delete the token on GitHub.
 
 ## 3. Using it
+* **Passport map:** the Passport page shows the map from your passport’s front page. Each district chip shows visited / total; tap one to jump to that district’s post offices.
 * **Passport →** open a post office → **Edit**: tick *Visited*, set the date, write what you want to remember, add photos of the **stamp**, the **location** and the **post office**, then **Save & publish**.
 * **Journey → + New story**: title, date, text, optional photos, optional link to a post office.
 * Visitors see your changes about **1 minute** after you press Save & publish. Photos are shrunk automatically (max 1600 px) before upload.

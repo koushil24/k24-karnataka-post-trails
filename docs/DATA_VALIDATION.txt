@@ -14,7 +14,7 @@ ok    office codes are as printed (2 have none, 1 is MDG)
 ok    no coordinates are invented in the data file
 info  shared PINs: 560001 → #15,#16,#17 | 577411 → #72,#73 | 587201 → #2,#3 | 591115 → #8,#9
 ok    the single PIN conflict (#9) is flagged
-ok    every file referenced by the pages exists with exact capitalisation (12 checked)
+ok    every file referenced by the pages exists with exact capitalisation (13 checked)
 ok    data/content.json is valid
 ok    all script/style links carry the same version stamp
 ok    every module the page waits for exists

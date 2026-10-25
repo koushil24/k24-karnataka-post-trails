@@ -70,6 +70,7 @@
   /* ================= PASSPORT ================= */
   const F = { q: '', only: false, d: '' };
   V.passport = () => ({ title: t('passport') + ' — K_24 Karnataka Post Trails', html: `<div class="wrap page"><header class="phd"><div><p class="eyebrow dark">${esc(t('eyebrow'))}</p><h1>${esc(t('passport'))}</h1></div><div class="hero-stat sm">${ring(K.visitedCount(), K.PLACES.length)}</div></header>
+      <details class="mapcard" open><summary><h2>${esc(t('mapTitle'))}</h2><span class="muted small">${esc(t('mapHint'))}</span></summary><div class="mapwrap"><div class="mapimg"><img src="assets/passport-map.jpg" alt="Map of Karnataka from the front page of my passport, with the 100 post offices numbered by district" width="1100" height="1542" loading="lazy">${K.DISTRICTS.map((d) => { const all = K.PLACES.filter((p) => p.d === d.order), vv = all.filter((p) => K.place(p.id).visited).length, sp = K.MAP_SPOTS[d.order]; return `<button type="button" class="hs ${vv ? 'on' : ''}" style="left:${sp[0]}%;top:${sp[1]}%" data-d="${d.order}" aria-label="${esc(d.name)} — ${vv} / ${all.length} ${esc(t('visited').toLowerCase())}"><span>${vv}/${all.length}</span></button>`; }).join('')}</div><p class="small muted">${esc(t('mapNote'))} <button class="linkish" type="button" data-fullmap>${esc(t('mapFull'))}</button></p></div></details>
       <div class="toolbar"><label class="search"><span class="sr">${esc(t('search'))}</span><input type="search" id="pq" placeholder="${esc(t('search'))}" value="${esc(F.q)}" autocomplete="off"></label>
         <label><span class="sr">${esc(t('jump'))}</span><select id="pd"><option value="">${esc(t('allDistricts'))}</option>${K.DISTRICTS.map((d) => `<option value="${d.order}" ${F.d === String(d.order) ? 'selected' : ''}>${pad2(d.order)} · ${esc(d.name)}</option>`).join('')}</select></label>
         <label class="switch"><input type="checkbox" id="po" ${F.only ? 'checked' : ''}><span>${esc(t('onlyVisited'))}</span></label><span class="count" id="pc" aria-live="polite"></span></div><div id="plist"></div></div>`,
@@ -84,6 +85,8 @@
         $('#plist', root).innerHTML = html || `<p class="muted">${esc(t('noMatch'))}</p>`; $('#pc', root).textContent = n + ' ' + t('shown');
       };
       draw(); K.tilt($('#plist', root), '.pcard');
+      root.addEventListener('click', (e) => { const h = e.target.closest('.hs'); if (h) { F.d = h.dataset.d; F.only = false; F.q = ''; $('#pd', root).value = F.d; $('#po', root).checked = false; $('#pq', root).value = ''; draw(); const el = $('#dist-' + F.d, root); if (el) el.scrollIntoView({ behavior: K.reduced() ? 'auto' : 'smooth', block: 'start' }); return; }
+        if (e.target.closest('[data-fullmap]')) K.lightbox('assets/passport-map.jpg', 'Passport map'); });
       $('#pq', root).addEventListener('input', (e) => { F.q = e.target.value; draw(); });
       $('#pd', root).addEventListener('change', (e) => { F.d = e.target.value; draw(); });
       $('#po', root).addEventListener('change', (e) => { F.only = e.target.checked; draw(); });
