@@ -76,6 +76,14 @@
       catch (x) { busy(d, false, ''); err.textContent = x.message || 'Could not publish.'; }
     });
   };
+  const saveLoc = async (id, rec) => { await K.publishJson('data/locations.json', (obj) => { obj[id] = rec; }, {}); K.locs[id] = rec; };
+  K.confirmLocation = async (id) => { const l = K.loc(id); if (!l) return; try { await saveLoc(id, { lat: l.lat, lng: l.lng, basis: 'confirmed', note: 'Confirmed by the owner.' }); K.toast(K.t('published')); K.render(); } catch (e) { K.toast(e.message, 'error'); } };
+  K.fixLocation = (id) => {
+    const p = K.PLACES.find((x) => x.id === id), l = K.loc(id); if (!p || !K.isOwner()) return;
+    const d = K.dialog(`<form class="dlg-in" novalidate><h2>${esc(K.t('fixLoc'))}</h2><p class="small">${esc(K.t('fixHelp'))}</p><div class="field"><label for="f-ll">Latitude, longitude</label><input id="f-ll" value="${l ? esc(l.lat + ', ' + l.lng) : ''}" placeholder="12.3052, 76.6552" autocomplete="off"></div><p class="err" id="f-err" role="alert"></p><div class="dlg-foot"><button class="btn ghost" data-close type="button">${esc(K.t('cancel'))}</button><button class="btn gold" type="submit">${esc(K.t('save'))}</button></div></form>`, 'sm');
+    $('form', d).addEventListener('submit', async (e) => { e.preventDefault(); const m = $('#f-ll', d).value.match(/-?\d+(?:\.\d+)?/g); const err = $('#f-err', d); if (!m || m.length < 2 || !K.inKarnatakaPt(+m[0], +m[1])) { err.textContent = K.t('fixBad'); return; }
+      try { await saveLoc(id, { lat: +(+m[0]).toFixed(6), lng: +(+m[1]).toFixed(6), basis: 'confirmed', note: 'Set by the owner.' }); d.close(); K.toast(K.t('published')); K.render(); } catch (x) { err.textContent = x.message; } });
+  };
   K.deleteStory = async (id) => {
     if (!(await K.confirm('Delete this story? Visitors will no longer see it.', t('del')))) return;
     try { await K.publish((cc) => { cc.stories = cc.stories.filter((x) => x.id !== id); }, []); K.toast('Deleted.'); location.hash = '#/journey'; K.render(); } catch (x) { K.toast(x.message || 'Could not delete.', 'error'); }

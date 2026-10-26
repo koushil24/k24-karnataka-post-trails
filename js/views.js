@@ -103,6 +103,7 @@
         ${c.visited ? `<div class="pressrow"><div class="press" aria-hidden="true"><svg viewBox="0 0 120 120"><circle class="draw" pathLength="1" cx="60" cy="60" r="54" fill="none" stroke="#C83742" stroke-width="3"/><circle cx="60" cy="60" r="44" fill="none" stroke="#C83742" stroke-width="1" opacity=".6"/></svg><b>${esc(t('seal'))}</b></div><div><h2>${esc(t('myVisit'))}</h2>${c.visitDate ? `<p class="muted">${esc(t('visitDate'))}: <strong>${esc(fmtDate(c.visitDate))}</strong></p>` : ''}</div></div>
           ${c.description ? `<p class="prose">${esc(c.description)}</p>` : ''}` : `<div class="notyet"><div class="ghost-stamp perf">${pad2(p.serial)}</div><p>${esc(t('notVisited'))}. ${esc(t('nothingYet'))}</p></div>`}
         ${pics ? `<div class="photos">${pics}</div>` : (c.visited ? `<p class="muted">${esc(t('nothingYet'))}</p>` : '')}
+        <div class="locbox"><h2>${esc(t('where'))}</h2><p class="muted small">${esc(K.basisText(K.loc(p.id)))}</p><div class="btn-row">${K.loc(p.id) ? `<a class="btn ghost sm" href="#/map?id=${enc(p.id)}">${esc(t('viewOnMap'))}</a>` : ''}<a class="btn gold sm" href="${esc(K.navUrl(p))}" target="_blank" rel="noopener noreferrer">${esc(t('navigate'))}</a>${owner ? `<button class="btn ghost sm" data-fixloc type="button">${esc(t('fixLoc'))}</button>${K.loc(p.id) && K.loc(p.id).basis !== 'confirmed' ? `<button class="btn ghost sm" data-confloc type="button">${esc(t('confirmLoc'))}</button>` : ''}` : ''}</div></div>
         ${owner ? `<p><button class="btn gold" data-edit type="button">✎ ${esc(t('edit'))}</button></p>` : ''}</section>
         <aside class="card details"><dl>
           <div><dt>${esc(t('district'))}</dt><dd>${esc(d.name)}${d.official !== d.name ? `<br><small class="muted">${esc(t('nowCalled'))} ${esc(d.official)}</small>` : ''}</dd></div><div><dt>${esc(t('pin'))}</dt><dd>${esc(p.pin)}</dd></div>
@@ -111,7 +112,7 @@
           ${p.pinStamp ? `<p class="warnbox">${esc(t('checkPin'))} ${esc(p.pinStamp)}.</p>` : ''}<p class="small muted">${esc(t('fromPassport'))}</p></aside></div>
         <nav class="wrap pn">${prev ? `<a href="#/place/${enc(prev.id)}">← #${prev.serial} ${esc(dn(prev))}</a>` : '<span></span>'}${next ? `<a href="#/place/${enc(next.id)}">#${next.serial} ${esc(dn(next))} →</a>` : '<span></span>'}</nav></article>`,
       after(root) { const pc = $('.photos', root); if (pc) { K.tilt(pc, '.pic', 7); pc.addEventListener('click', (e) => { const b = e.target.closest('[data-lb]'); if (b) K.lightbox(b.dataset.lb, b.dataset.alt); else if (e.target.closest('.pic.empty') && owner) K.editPlace(p.id); }); }
-        const eb = $('[data-edit]', root); if (eb) eb.addEventListener('click', () => K.editPlace(p.id)); } };
+        const eb = $('[data-edit]', root); if (eb) eb.addEventListener('click', () => K.editPlace(p.id)); const fl = $('[data-fixloc]', root), cl = $('[data-confloc]', root); if (fl) fl.addEventListener('click', () => K.fixLocation(p.id)); if (cl) cl.addEventListener('click', () => K.confirmLocation(p.id)); } };
   };
 
   /* ================= JOURNEY ================= */

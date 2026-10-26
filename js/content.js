@@ -21,6 +21,14 @@
     finally { clearTimeout(t); }
     return K.content;
   };
+  K.locs = {};
+  K.inKarnatakaPt = (a, b) => a >= 11.4 && a <= 18.6 && b >= 73.8 && b <= 78.7;
+  K.loadLocations = async () => {
+    const out = {}; Object.keys(K.SEED_LOCS || {}).forEach((id) => { const s = K.SEED_LOCS[id]; if (K.inKarnatakaPt(s[0], s[1])) out[id] = { lat: s[0], lng: s[1], basis: 'approx', note: 'Town-level position (approximate).' }; });
+    try { const r = await fetch('data/locations.json?t=' + Date.now(), { cache: 'no-store' }); if (r.ok) { const j = await r.json(); Object.keys(j || {}).forEach((id) => { const l = j[id]; if (l && K.inKarnatakaPt(+l.lat, +l.lng)) out[id] = { lat: +l.lat, lng: +l.lng, basis: ['confirmed', 'osm', 'approx'].includes(l.basis) ? l.basis : 'approx', note: String(l.note || '').slice(0, 200) }; }); } } catch (e) { /* no published locations yet — seeds are used */ }
+    K.locs = out; return out;
+  };
+  K.loc = (id) => K.locs[id] || null;
   K.place = (id) => K.content.places[id] || { visited: false, visitDate: '', description: '', photos: {} };
   K.img = (p) => K.localPhotos[p] || p;
   K.visitedCount = () => K.PLACES.filter((p) => K.place(p.id).visited).length;
@@ -52,6 +60,16 @@
     if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) throw new Error('Repository should look like username/repository.'); if (token.length < 20) throw new Error('Paste the full token.');
     const info = await gh({ repo, token }, '', {}); if (info.permissions && !info.permissions.push) throw new Error('This token can read the repository but not write to it.');
     K.owner.set({ repo, token, branch }); return info;
+  };
+  /* publish any small JSON file in the repository (used for map locations) */
+  K.publishJson = async (path, mutate, def) => {
+    const cfg = K.owner.get(); if (!cfg) throw new Error('Owner sign-in is needed to publish.');
+    for (let attempt = 0; attempt < 2; attempt++) {
+      let cur = def, sha; try { const g = await gh(cfg, 'contents/' + path + '?ref=' + encodeURIComponent(cfg.branch), {}); sha = g.sha; cur = JSON.parse(unb64(g.content)); } catch (e) { if (e.status !== 404) throw e; }
+      mutate(cur);
+      try { await gh(cfg, 'contents/' + path, { method: 'PUT', body: JSON.stringify({ message: 'Update ' + path, content: b64(JSON.stringify(cur, null, 1)), branch: cfg.branch, sha }) }); return cur; } catch (e) { if (e.status !== 409 && e.status !== 422) throw e; }
+    }
+    throw new Error('Could not save — please try again.');
   };
   K.publish = async (mutate, files, progress) => {
     const cfg = K.owner.get(); if (!cfg) throw new Error('Owner sign-in is needed to publish.');

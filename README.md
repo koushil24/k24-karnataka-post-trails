@@ -20,6 +20,7 @@ A website on GitHub Pages cannot save anything by itself, so the site saves your
 The token is stored only in that browser on that device. **Sign out** (footer “Owner mode” button) removes it. If you ever lose the phone, delete the token on GitHub.
 
 ## 3. Using it
+* **Map page:** a real, zoomable OpenStreetMap with a marker for each located post office (green = not visited, gold = visited, dashed outline = approximate position). 72 of 100 start with approximate town-level positions. Sign in as Owner → Map page → **Locate with OpenStreetMap** finds the other 28 (takes about 2 minutes; keep the page open) and you press Save to publish them. On any post office page, **Fix location** (paste latitude, longitude from Google Maps) or **Confirm location** turns it into a confirmed position. Positions are never claimed to be exact until you confirm them.
 * **Passport map:** the Passport page shows the map from your passport’s front page. Each district chip shows visited / total; tap one to jump to that district’s post offices.
 * **Passport →** open a post office → **Edit**: tick *Visited*, set the date, write what you want to remember, add photos of the **stamp**, the **location** and the **post office**, then **Save & publish**.
 * **Journey → + New story**: title, date, text, optional photos, optional link to a post office.

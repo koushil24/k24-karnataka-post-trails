@@ -32,7 +32,7 @@
       $('#owner-btn').addEventListener('click', () => K.ownerDialog()); $('#owner-pill').addEventListener('click', () => K.ownerDialog());
       window.addEventListener('hashchange', () => K.render());
       $('#year').textContent = new Date().getFullYear();
-      await K.load(); K.render();
+      await Promise.all([K.load(), K.loadLocations()]); K.render();
     } catch (e) { console.error(e); window.__k24Fatal(['Startup error: ' + (e && e.message ? e.message : e)]); }
   }
   (K.mods = K.mods || {}).app = '5.0';
