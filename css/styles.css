@@ -145,3 +145,6 @@ h1[tabindex="-1"]:focus{outline:none}
 .pop{display:grid;gap:.15rem;font:400 .9rem/1.35 var(--sans);color:#20251F}.pop strong{font:700 1rem Georgia,serif}.pop .okc{color:#0f5a43;font-weight:600}.pop .muted{color:#667}.pop .pl{display:flex;gap:.8rem;margin-top:.3rem}.pop a{font-weight:600;color:#0f5a43}
 .ownerbox{padding:.9rem 1rem;margin-top:.8rem;background:var(--paper);border:1px solid var(--gold);border-radius:14px}.bar.big{height:10px;width:100%;margin:.6rem 0}.locbox{margin:1.4rem 0}.locbox h2{margin-bottom:.2rem}
 @media (max-width:900px){.tabs{display:flex}.mapui{grid-template-columns:1fr}.mapui[data-pane=map] .mlist{display:none}.mapui[data-pane=list] .mmain{display:none}.ml{max-height:none}.bigmap{height:68vh}}
+
+.mrow{display:flex;gap:.4rem;align-items:stretch;list-style:none}.mrow .mi{flex:1}.mfix{flex:none;width:46px;border-radius:14px;border:1px solid var(--gold);background:var(--paper);color:var(--link);font-size:1.1rem;cursor:pointer}.mfix:hover{background:var(--paper2)}
+.pop .pl button{font:600 .85rem var(--sans);color:#0f5a43;background:none;border:0;padding:0;cursor:pointer;text-decoration:underline}

@@ -77,12 +77,36 @@
     });
   };
   const saveLoc = async (id, rec) => { await K.publishJson('data/locations.json', (obj) => { obj[id] = rec; }, {}); K.locs[id] = rec; };
+  K.saveLocation = (id, lat, lng, note) => saveLoc(id, { lat: +(+lat).toFixed(6), lng: +(+lng).toFixed(6), basis: 'confirmed', note: note || 'Set by the owner.' });
   K.confirmLocation = async (id) => { const l = K.loc(id); if (!l) return; try { await saveLoc(id, { lat: l.lat, lng: l.lng, basis: 'confirmed', note: 'Confirmed by the owner.' }); K.toast(K.t('published')); K.render(); } catch (e) { K.toast(e.message, 'error'); } };
-  K.fixLocation = (id) => {
+
+  /* Understands Google Maps links (long links), "12.3052, 76.6552", and 12°18'18.7"N 76°39'19.9"E. Short share links cannot be read by a website. */
+  K.parseLocation = (raw) => {
+    const s = String(raw || '').trim(); if (!s) return null;
+    if (/^https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/kgs)/i.test(s)) return { short: true };
+    let t = s; try { t = decodeURIComponent(s); } catch (e) {}
+    const num = '(-?\\d{1,3}(?:\\.\\d+)?)'; let m, lat, lng;
+    if ((m = t.match(new RegExp('!3d' + num + '!4d' + num)))) { lat = +m[1]; lng = +m[2]; }
+    else if ((m = t.match(new RegExp('@' + num + ',' + num)))) { lat = +m[1]; lng = +m[2]; }
+    else if ((m = t.match(new RegExp('[?&](?:q|ll|query|destination|center)=' + num + '\\s*,\\s*' + num)))) { lat = +m[1]; lng = +m[2]; }
+    else if ((m = t.match(/(\d{1,3})\s*[°º]\s*(\d{1,2})\s*['′’]\s*(\d{1,2}(?:\.\d+)?)\s*["″”]?\s*([NS])[\s,]*(\d{1,3})\s*[°º]\s*(\d{1,2})\s*['′’]\s*(\d{1,2}(?:\.\d+)?)\s*["″”]?\s*([EW])/i))) { lat = (+m[1] + m[2] / 60 + m[3] / 3600) * (/s/i.test(m[4]) ? -1 : 1); lng = (+m[5] + m[6] / 60 + m[7] / 3600) * (/w/i.test(m[8]) ? -1 : 1); }
+    else if ((m = t.match(/(-?\d{1,2}\.\d{3,})\s*[,;\s]\s*(-?\d{1,3}\.\d{3,})/))) { lat = +m[1]; lng = +m[2]; }
+    if (lat == null || !K.inKarnatakaPt(lat, lng)) return { bad: true };
+    return { lat: +lat.toFixed(6), lng: +lng.toFixed(6) };
+  };
+
+  K.fixLocation = (id, onSaved) => {
     const p = K.PLACES.find((x) => x.id === id), l = K.loc(id); if (!p || !K.isOwner()) return;
-    const d = K.dialog(`<form class="dlg-in" novalidate><h2>${esc(K.t('fixLoc'))}</h2><p class="small">${esc(K.t('fixHelp'))}</p><div class="field"><label for="f-ll">Latitude, longitude</label><input id="f-ll" value="${l ? esc(l.lat + ', ' + l.lng) : ''}" placeholder="12.3052, 76.6552" autocomplete="off"></div><p class="err" id="f-err" role="alert"></p><div class="dlg-foot"><button class="btn ghost" data-close type="button">${esc(K.t('cancel'))}</button><button class="btn gold" type="submit">${esc(K.t('save'))}</button></div></form>`, 'sm');
-    $('form', d).addEventListener('submit', async (e) => { e.preventDefault(); const m = $('#f-ll', d).value.match(/-?\d+(?:\.\d+)?/g); const err = $('#f-err', d); if (!m || m.length < 2 || !K.inKarnatakaPt(+m[0], +m[1])) { err.textContent = K.t('fixBad'); return; }
-      try { await saveLoc(id, { lat: +(+m[0]).toFixed(6), lng: +(+m[1]).toFixed(6), basis: 'confirmed', note: 'Set by the owner.' }); d.close(); K.toast(K.t('published')); K.render(); } catch (x) { err.textContent = x.message; } });
+    const d = K.dialog(`<form class="dlg-in" novalidate><h2>${esc(K.t('fixLoc'))}</h2><p><strong>#${p.serial} ${esc(K.dn(p))}</strong> · ${esc(K.DISTRICTS[p.d - 1].name)}</p>
+      <p class="small">${esc(K.t('fixHelp2'))}</p><div class="field"><label for="f-ll">${esc(K.t('fixLabel'))}</label><textarea id="f-ll" rows="3" placeholder="https://www.google.com/maps/place/…/@12.3052,76.6552,17z   or   12.3052, 76.6552" autocomplete="off"></textarea></div>
+      <p class="small" id="f-prev" role="status"></p><p class="err" id="f-err" role="alert"></p>
+      <div class="dlg-foot"><button class="btn ghost" data-close type="button">${esc(K.t('cancel'))}</button><button class="btn gold" type="submit" id="f-save" disabled>${esc(K.t('save'))}</button></div></form>`, 'sm');
+    let cur = null; const prev = $('#f-prev', d), err = $('#f-err', d), save = $('#f-save', d);
+    $('#f-ll', d).addEventListener('input', (e) => { const r = K.parseLocation(e.target.value); cur = null; save.disabled = true; err.textContent = ''; prev.innerHTML = '';
+      if (!r) return; if (r.short) { err.textContent = K.t('fixShort'); return; } if (r.bad) { err.textContent = K.t('fixBad'); return; }
+      cur = r; save.disabled = false; prev.innerHTML = '✓ ' + esc(K.t('fixFound')) + ' <strong>' + r.lat + ', ' + r.lng + '</strong> · <a href="https://www.google.com/maps/search/?api=1&query=' + r.lat + ',' + r.lng + '" target="_blank" rel="noopener noreferrer">' + esc(K.t('fixCheck')) + '</a>'; });
+    $('form', d).addEventListener('submit', async (e) => { e.preventDefault(); if (!cur) return; save.disabled = true; save.textContent = '…';
+      try { await K.saveLocation(id, cur.lat, cur.lng, 'Set by the owner from a Google Maps position.'); d.close(); K.toast(K.t('published')); if (onSaved) onSaved(); else K.render(); } catch (x) { err.textContent = x.message; save.disabled = false; save.textContent = K.t('save'); } });
   };
   K.deleteStory = async (id) => {
     if (!(await K.confirm('Delete this story? Visitors will no longer see it.', t('del')))) return;
