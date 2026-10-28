@@ -106,5 +106,11 @@
   "lng": 76.656725,
   "basis": "confirmed",
   "note": "Set by the owner from a Google Maps position."
+ },
+ "d001": {
+  "lat": 16.019553,
+  "lng": 75.880544,
+  "basis": "confirmed",
+  "note": "Set by the owner from a Google Maps position."
  }
 }
