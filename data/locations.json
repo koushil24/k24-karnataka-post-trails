@@ -1,0 +1,104 @@
+{
+ "d010": {
+  "lat": 15.54059,
+  "lng": 74.59142,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ಹಲಶಿ, ಖಾನಾಪುರ ತಾಲೂಕು, ಬೆಳಗಾವಿ ಜಿಲ್ಲೆ, Karnataka, 591120, India"
+ },
+ "d011": {
+  "lat": 15.79569,
+  "lng": 75.19175,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ಹೂಲಿ, ಸವದತ್ತಿ ತಾಲೂಕು, ಬೆಳಗಾವಿ ಜಿಲ್ಲೆ, Karnataka, India"
+ },
+ "d044": {
+  "lat": 15.45939,
+  "lng": 74.98953,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ನಾರಯಣಪುರ ಉದ್ಯಾನವನ, ಸಾಧನಕೇರಿ, Dharwad, ಧಾರವಾಡ ತಾಲೂಕು, ಧಾರವಾಡ ಜಿಲ್ಲೆ, Karnataka, 580001, Ind"
+ },
+ "d056": {
+  "lat": 11.99308,
+  "lng": 76.06794,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ನಾಗರಹೊಳೆ, ಪೊನ್ನಂಪೇಟೆ ತಾಲೂಕು, Coorg, Karnataka, 571250, India"
+ },
+ "d058": {
+  "lat": 12.8742,
+  "lng": 77.9979,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ಮಾಸ್ತಿ ಮಾಸ್ತಿ ಪ್ರಾ. ಆ. ಕೇ., SH99, ಬಂಡಹಟ್ಟಿ, ಮಾಸ್ತಿ, ಮಾಲೂರು ತಾಲೂಕು, ಕೋಲಾರ ಜಿಲ್ಲೆ, Karnataka"
+ },
+ "d061": {
+  "lat": 12.50977,
+  "lng": 77.08833,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ಕೊಕ್ಕರೆ ಬೆಳ್ಳೂರು, ಮದ್ದೂರು ತಾಲೂಕು, ಮಂಡ್ಯ ಜಿಲ್ಲೆ, Karnataka, 571433, India"
+ },
+ "d074": {
+  "lat": 13.63023,
+  "lng": 75.28273,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ದೇವಂಗಿ, ತೀರ್ಥಹಳ್ಳಿ ತಾಲ್ಲೂಕು, ಶಿವಮೊಗ್ಗ ಜಿಲ್ಲೆ, Karnataka, India"
+ },
+ "d076": {
+  "lat": 13.86236,
+  "lng": 75.20732,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ಹುಂಚ, ಹೊಸನಗರ ತಾಲೂಕು, ಶಿವಮೊಗ್ಗ ಜಿಲ್ಲೆ, Karnataka, India"
+ },
+ "d078": {
+  "lat": 13.28066,
+  "lng": 77.18878,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ಹಿರೇಹಳ್ಳಿ, NH48, ಕ್ಯಾತಸಂದ್ರ, ಚಿಕ್ಕಹಳ್ಳಿ, ತುಮಕೂರು ತಾಲೂಕು, ತುಮಕೂರು ಜಿಲ್ಲೆ, Karnataka, 572168"
+ },
+ "d082": {
+  "lat": 13.39593,
+  "lng": 75.00366,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ವರಂಗ, ಹೆಬ್ರಿ ತಾಲೂಕು, ಉಡುಪಿ ಜಿಲ್ಲೆ, Karnataka, 574108, India"
+ },
+ "d083": {
+  "lat": 13.26034,
+  "lng": 74.77124,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ಶಂಕರಪುರ, ಕಾಪು ತಾಲೂಕು, ಉಡುಪಿ ಜಿಲ್ಲೆ, Karnataka, 574115, India"
+ },
+ "d087": {
+  "lat": 13.18634,
+  "lng": 74.87432,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ನಂದಲಿಕೆ, ಬೆಳ್ಮಣ್, ಕಾರ್ಕಳ ತಾಲೂಕು, ಉಡುಪಿ ಜಿಲ್ಲೆ, Karnataka, 576111, India"
+ },
+ "d088": {
+  "lat": 13.49077,
+  "lng": 75.06753,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ಸೋಮೆಶ್ವರ, ಹೆಬ್ರಿ ತಾಲೂಕು, ಉಡುಪಿ ಜಿಲ್ಲೆ, Karnataka, 576129, India"
+ },
+ "d089": {
+  "lat": 13.20469,
+  "lng": 74.97292,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): Miraculous Attur Pond, ಪರ್ಪಲೆ, ಅಟ್ಟೂರು, ಕಾರ್ಕಳ ತಾಲೂಕು, ಉಡುಪಿ ಜಿಲ್ಲೆ, Karnataka, 574104, In"
+ },
+ "d093": {
+  "lat": 13.52753,
+  "lng": 74.70483,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ಅಂಚೆ ಕಛೇರಿ, ಕೋಟ, NH66, Koteshwara, ಮಣೂರು, ಬ್ರಹ್ಮವರ ತಾಲೂಕು, ಉಡುಪಿ ಜಿಲ್ಲೆ, Karnataka, 576221"
+ },
+ "d094": {
+  "lat": 13.49615,
+  "lng": 74.81129,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ಮಂದಾರ್ತಿ ಪೋಸ್ಟ್ ಆಫೀಸ್, ಬಾರ್ಕೂರು ಮಂದಾರ್ತಿ ರಸ್ತೆ, ಹೆಗ್ಗುಂಜೆ, ಮಂದಾರ್ತಿ, ಬ್ರಹ್ಮವರ ತಾಲೂಕು, ಉಡುಪ"
+ },
+ "d095": {
+  "lat": 14.60433,
+  "lng": 74.29573,
+  "basis": "osm",
+  "note": "Found by OpenStreetMap search (approximate): ಮಂಜುಗುಣಿ, ಅಂಕೋಲ ತಾಲೂಕು, ಉತ್ತರ ಕನ್ನಡ, Karnataka, 581319, India"
+ }
+}
