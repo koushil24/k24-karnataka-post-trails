@@ -100,5 +100,11 @@
   "lng": 74.29573,
   "basis": "osm",
   "note": "Found by OpenStreetMap search (approximate): ಮಂಜುಗುಣಿ, ಅಂಕೋಲ ತಾಲೂಕು, ಉತ್ತರ ಕನ್ನಡ, Karnataka, 581319, India"
+ },
+ "d063": {
+  "lat": 12.313886,
+  "lng": 76.656725,
+  "basis": "confirmed",
+  "note": "Set by the owner from a Google Maps position."
  }
 }
